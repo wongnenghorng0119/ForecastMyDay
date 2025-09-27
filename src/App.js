@@ -3,14 +3,17 @@ import React, { useEffect, useRef, useState } from "react";
 import OverlayBar from "./components/OverlayBar";
 import GlobeView from "./components/GlobeView";
 import FlatView from "./components/FlatView";
+import Loading from "./components/Loading";
 import { LOCAL_GEOJSON } from "./utils/constants";
+import { geoCentroid, geoBounds } from "d3-geo";
 
 export default function App() {
-  const [mode, setMode] = useState("globe"); // 'globe' | 'flat'
+  const [mode, setMode] = useState("globe"); // 'globe' | 'flat' | 'loading'
   const [features, setFeatures] = useState([]);
   const [selectedName, setSelectedName] = useState(null); // 3D
   const [selectedArea, setSelectedArea] = useState(null); // 2D {name, type, lat, lng}
   const [globeFocusLocation, setGlobeFocusLocation] = useState(null); // {lat, lng} for globe focus
+  const [transitionTarget, setTransitionTarget] = useState(null); // {name, lat, lng} for animation
 
   // 顶层受控：搜索框内容 + 等待 2D 注册完成后自动搜索
   const [query, setQuery] = useState("");
@@ -47,6 +50,12 @@ export default function App() {
     }
   }, [mode, pendingSearch]);
 
+  // Handle transition completion
+  const handleTransitionComplete = () => {
+    setMode("flat");
+    setTransitionTarget(null);
+  };
+
   return (
     <div
       style={{
@@ -76,11 +85,26 @@ export default function App() {
             const name = feat?.properties?.name || null;
             setSelectedName(name);
             if (name && name !== "Antarctica") {
-              setMode("flat"); // 切到 2D
-              setQuery(name); // 写进搜索框
-              setPendingSearch(name); // 等 2D handler 装载后自动触发
+              // Calculate centroid for transition
+              let [lng, lat] = geoCentroid(feat);
+              if (!isFinite(lng) || !isFinite(lat)) {
+                const [[minLon, minLat], [maxLon, maxLat]] = geoBounds(feat);
+                lng = (minLon + maxLon) / 2;
+                lat = (minLat + maxLat) / 2;
+              }
+              setTransitionTarget({ name, lat, lng });
+              setMode("loading"); // Switch to loading animation
+              setQuery(name);
+              setPendingSearch(name);
             }
           }}
+        />
+      ) : mode === "loading" ? (
+        <Loading
+          features={features}
+          selectedName={selectedName}
+          transitionTarget={transitionTarget}
+          onTransitionComplete={handleTransitionComplete}
         />
       ) : (
         <FlatView
