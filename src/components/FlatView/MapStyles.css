@@ -1,0 +1,23 @@
+/* Ensure proper map rendering */
+.leaflet-container {
+  background: #000 !important;
+  z-index: 1 !important;
+}
+
+.leaflet-tile {
+  filter: none !important;
+}
+
+.leaflet-map-pane {
+  z-index: 1 !important;
+}
+
+/* Fix any potential rendering issues */
+.leaflet-zoom-animated {
+  transform-origin: center center !important;
+}
+
+/* Ensure proper canvas rendering */
+.leaflet-canvas-layer {
+  z-index: 2 !important;
+}
