@@ -10,6 +10,7 @@ export default function App() {
   const [features, setFeatures] = useState([]);
   const [selectedName, setSelectedName] = useState(null); // 3D
   const [selectedArea, setSelectedArea] = useState(null); // 2D {name, type, lat, lng}
+  const [globeFocusLocation, setGlobeFocusLocation] = useState(null); // {lat, lng} for globe focus
 
   // 顶层受控：搜索框内容 + 等待 2D 注册完成后自动搜索
   const [query, setQuery] = useState("");
@@ -70,6 +71,7 @@ export default function App() {
         <GlobeView
           features={features}
           selectedName={selectedName}
+          focusLocation={globeFocusLocation}
           onPick={(feat) => {
             const name = feat?.properties?.name || null;
             setSelectedName(name);
@@ -85,6 +87,10 @@ export default function App() {
           selectedArea={selectedArea}
           setSelectedArea={setSelectedArea}
           setSearchHandler={(fn) => (searchHandlerRef.current = fn)}
+          onSwitchToGlobe={(lat, lng) => {
+            setGlobeFocusLocation({ lat, lng });
+            setMode("globe");
+          }}
         />
       )}
     </div>

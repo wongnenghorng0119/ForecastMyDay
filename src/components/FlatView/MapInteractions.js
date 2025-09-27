@@ -11,6 +11,7 @@ const MapInteractions = ({
   setStatsErr,
   setCsvURL,
   csvURL,
+  onSwitchToGlobe,
 }) => {
   const map = useMapEvents({
     async click(e) {
@@ -49,6 +50,14 @@ const MapInteractions = ({
       if (csvURL) {
         URL.revokeObjectURL(csvURL);
         setCsvURL(null);
+      }
+    },
+    zoomend() {
+      // Switch back to globe view when zoomed out too much
+      // Zoom level 2 or below typically shows the black area
+      if (map.getZoom() <= 2) {
+        const center = map.getCenter();
+        onSwitchToGlobe?.(center.lat, center.lng);
       }
     },
   });

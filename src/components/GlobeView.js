@@ -1,8 +1,8 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import Globe from "react-globe.gl";
 import { geoCentroid, geoBounds } from "d3-geo";
 
-const GlobeView = ({ features, selectedName, onPick }) => {
+const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
   const globeRef = useRef();
 
   const flyTo = (feat) => {
@@ -18,6 +18,20 @@ const GlobeView = ({ features, selectedName, onPick }) => {
       globeRef.current.pointOfView({ lat, lng: lon, altitude: 1.2 }, 900);
     } catch {}
   };
+
+  const flyToLocation = (lat, lng) => {
+    if (!globeRef.current || !isFinite(lat) || !isFinite(lng)) return;
+    try {
+      globeRef.current.pointOfView({ lat, lng, altitude: 1.2 }, 900);
+    } catch {}
+  };
+
+  // Focus on the location when focusLocation changes
+  useEffect(() => {
+    if (focusLocation && focusLocation.lat && focusLocation.lng) {
+      flyToLocation(focusLocation.lat, focusLocation.lng);
+    }
+  }, [focusLocation]);
 
   return (
     <Globe

@@ -23,7 +23,7 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler }) => {
+const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToGlobe }) => {
   const markerRef = useRef(null);
   const mapRef = useRef(null);
 
@@ -130,6 +130,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler }) => {
           setStatsErr={setStatsErr}
           setCsvURL={setCsvURL}
           csvURL={csvURL}
+          onSwitchToGlobe={onSwitchToGlobe}
         />
       </MapContainer>
 
