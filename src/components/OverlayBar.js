@@ -1,5 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
+import VoiceInputButton from "./VoiceInputButton";
 
 const OverlayBar = ({
   mode,
@@ -11,6 +12,13 @@ const OverlayBar = ({
   query,
   setQuery,
 }) => {
+  const handleVoiceTranscript = (transcript) => {
+    setQuery(transcript);
+    if (transcript.trim()) {
+      onSearch?.(transcript.trim());
+    }
+  };
+
   return createPortal(
     <div
       style={{
@@ -33,13 +41,13 @@ const OverlayBar = ({
         onClick={() => setMode("globe")}
         style={btn(mode === "globe" ? "#1f8fff" : "#444")}
       >
-        Globe
+        🌍 Globe
       </button>
       <button
         onClick={() => setMode("flat")}
         style={btn(mode === "flat" ? "#1f8fff" : "#444")}
       >
-        2D Map
+        🗺️ 2D Map
       </button>
 
       {mode === "globe" ? (
@@ -56,11 +64,18 @@ const OverlayBar = ({
             placeholder="Search location (e.g., malaysia sibu)"
             style={input()}
           />
+          
+          {/* 语音输入按钮 */}
+          <VoiceInputButton 
+            onTranscript={handleVoiceTranscript}
+            disabled={mode !== "flat"}
+          />
+          
           <button
             onClick={() => query.trim() && onSearch?.(query.trim())}
             style={btn("#1f8fff")}
           >
-            Search
+            🔍 Search
           </button>
 
           <div style={pill()}>
@@ -70,7 +85,7 @@ const OverlayBar = ({
               : "(None)"}
           </div>
           <button onClick={clearArea} style={btn("#444")}>
-            Clear
+            ✖️ Clear
           </button>
         </>
       )}
@@ -86,12 +101,15 @@ const btn = (bg) => ({
   cursor: "pointer",
   background: bg,
   color: "#fff",
+  fontWeight: 500,
+  transition: "all 0.2s ease",
 });
 
 const pill = () => ({
   background: "rgba(0,0,0,0.45)",
   padding: "6px 10px",
   borderRadius: 8,
+  fontSize: 14,
 });
 
 const input = () => ({
@@ -102,6 +120,8 @@ const input = () => ({
   outline: "none",
   background: "rgba(255,255,255,0.15)",
   color: "#fff",
+  fontSize: 14,
+  transition: "all 0.2s ease",
 });
 
 export default OverlayBar;
