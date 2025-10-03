@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { btn, responsivePanel, responsiveFlex } from "../../utils/styles";
 import Calendar from "../Calendar";
 
@@ -8,9 +9,7 @@ const ProbabilityControls = ({
 }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateRange, setDateRange] = useState(null);
-  const [calendarPosition, setCalendarPosition] = useState("right");
   const calendarRef = useRef(null);
-  const controlsRef = useRef(null);
 
   const handleDateRangeChange = (range) => {
     setDateRange(range);
@@ -52,7 +51,7 @@ const ProbabilityControls = ({
     return `${startStr} - ${endStr}`;
   };
 
-  // Close calendar when clicking outside and determine position
+  // Close calendar when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {
@@ -60,28 +59,17 @@ const ProbabilityControls = ({
       }
     };
 
-    const determineCalendarPosition = () => {
-      if (controlsRef.current) {
-        const rect = controlsRef.current.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const calendarWidth = 320; // Approximate calendar width
-        
-        // If there's not enough space on the right, show on the left
-        if (rect.right + calendarWidth + 20 > viewportWidth) {
-          setCalendarPosition("left");
-        } else {
-          setCalendarPosition("right");
-        }
-      }
-    };
-
     if (showCalendar) {
       document.addEventListener('mousedown', handleClickOutside);
-      determineCalendarPosition();
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'unset';
     };
   }, [showCalendar]);
 
@@ -104,7 +92,6 @@ const ProbabilityControls = ({
       }}
     >
       <div
-        ref={controlsRef}
         style={{
           ...responsivePanel("relative"),
           minWidth: 280,
@@ -163,34 +150,147 @@ const ProbabilityControls = ({
           </span>
         </button>
 
-        {/* Calendar Dropdown */}
-        {showCalendar && (
-          <div style={{
-            position: "absolute",
-            top: "0",
-            [calendarPosition === "right" ? "left" : "right"]: "100%",
-            zIndex: 1000,
-            [calendarPosition === "right" ? "marginLeft" : "marginRight"]: "12px",
-            // Ensure calendar doesn't go off-screen
-            maxWidth: "320px",
-            // Mobile responsive
-            [`@media (max-width: 768px)`]: {
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90vw",
-              maxWidth: "320px",
-              marginLeft: "0",
-              marginRight: "0"
-            }
-          }}>
-            <Calendar
-              onDateRangeChange={handleDateRangeChange}
-              initialStartDate={dateRange?.startDate}
-              initialEndDate={dateRange?.endDate}
+        {/* Calendar Modal */}
+        {showCalendar && createPortal(
+          <>
+            {/* Backdrop */}
+            <div 
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
+                zIndex: 9999,
+                backdropFilter: "blur(2px)"
+              }}
+              onClick={() => setShowCalendar(false)}
             />
-          </div>
+            {/* Calendar Modal */}
+            <div 
+              ref={calendarRef}
+              style={{
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 10000,
+                width: "90vw",
+                maxWidth: "400px",
+                backgroundColor: "#1a1a1a",
+                borderRadius: "12px",
+                padding: "20px",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+                border: "1px solid #333",
+                [`@media (max-width: 768px)`]: {
+                  width: "95vw",
+                  maxWidth: "350px",
+                  padding: "16px"
+                }
+              }}
+            >
+              {/* Modal Header */}
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+                paddingBottom: "12px",
+                borderBottom: "1px solid #333"
+              }}>
+                <h3 style={{
+                  margin: 0,
+                  color: "#fff",
+                  fontSize: "18px",
+                  fontWeight: "600"
+                }}>
+                  Select Date Range
+                </h3>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#999",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    padding: "4px",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "32px",
+                    height: "32px",
+                    transition: "all 0.2s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "#333";
+                    e.target.style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "transparent";
+                    e.target.style.color = "#999";
+                  }}
+                  title="Close calendar"
+                >
+                  ×
+                </button>
+              </div>
+              
+              {/* Calendar Component */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <Calendar
+                  onDateRangeChange={handleDateRangeChange}
+                  initialStartDate={dateRange?.startDate}
+                  initialEndDate={dateRange?.endDate}
+                />
+              </div>
+              
+              {/* Modal Footer */}
+              <div style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px",
+                marginTop: "16px",
+                paddingTop: "12px",
+                borderTop: "1px solid #333"
+              }}>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  style={{
+                    ...btn("#666"),
+                    padding: "8px 16px",
+                    fontSize: "14px"
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (dateRange) {
+                      setShowCalendar(false);
+                    }
+                  }}
+                  style={{
+                    ...btn("#1f8fff"),
+                    padding: "8px 16px",
+                    fontSize: "14px",
+                    opacity: dateRange ? 1 : 0.5,
+                    cursor: dateRange ? "pointer" : "not-allowed"
+                  }}
+                  disabled={!dateRange}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </>,
+          document.body
         )}
       </div>
 

@@ -218,22 +218,6 @@ const Calendar = ({
         <div style={dateRangeValueStyle}>{formatDateRange()}</div>
       </div>
 
-      {/* Quick Actions */}
-      <div style={quickActionsStyle}>
-        <button onClick={goToToday} style={quickActionButtonStyle}>
-          Today
-        </button>
-        <button 
-          onClick={() => {
-            const today = new Date();
-            setSelectedStartDate(today);
-            setSelectedEndDate(today);
-          }} 
-          style={quickActionButtonStyle}
-        >
-          Select Today
-        </button>
-      </div>
 
       {/* Calendar Styles */}
       <style jsx>{`
