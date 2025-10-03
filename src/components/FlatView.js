@@ -43,6 +43,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsErr, setStatsErr] = useState(null);
   const [csvURL, setCsvURL] = useState(null);
+  const [showResults, setShowResults] = useState(false);
 
   async function runStats(lat, lng, m, d, w) {
     if (powerAbortRef.current) powerAbortRef.current.abort();
@@ -50,6 +51,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
     powerAbortRef.current = ac;
 
     setLoadingStats(true);
+    setShowResults(true);
     setStatsErr(null);
     setStats(null);
     if (csvURL) {
@@ -153,7 +155,33 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
         onCalculate={runStats}
       />
 
+      {/* Full-page loading overlay while fetching stats */}
+      {loadingStats && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            backdropFilter: "blur(2px)",
+            zIndex: 2147483646,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            fontFamily: "system-ui",
+            flexDirection: "column",
+            gap: 12
+          }}
+        >
+          <div style={{ width: 40, height: 40, border: "4px solid #66aaff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <div style={{ fontSize: 14, opacity: 0.9 }}>Loading NASA POWER data…</div>
+          <style>{`@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }`}</style>
+        </div>
+      )}
+
       <ResultsPanel
+        open={showResults}
+        onToggle={() => setShowResults((v) => !v)}
         loadingStats={loadingStats}
         statsErr={statsErr}
         stats={stats}

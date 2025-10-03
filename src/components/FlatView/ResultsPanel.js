@@ -2,6 +2,8 @@ import React from "react";
 import { btn, responsivePanel } from "../../utils/styles";
 
 const ResultsPanel = ({
+  open,
+  onToggle,
   loadingStats,
   statsErr,
   stats,
@@ -17,13 +19,17 @@ const ResultsPanel = ({
         ...responsivePanel("absolute"),
         right: 12,
         bottom: 12,
-        minWidth: 280,
+        minWidth: open ? 280 : 140,
         maxWidth: 420,
+        overflow: "hidden",
+        transition: "max-height 0.25s ease, opacity 0.25s ease",
+        maxHeight: open ? 640 : 640,
+        opacity: open ? 1 : 0.95,
         // Mobile responsive
         [`@media (max-width: 768px)`]: {
           right: 8,
           bottom: 8,
-          minWidth: 260,
+          minWidth: open ? 260 : 140,
           maxWidth: "calc(100vw - 16px)"
         },
         [`@media (max-width: 480px)`]: {
@@ -36,23 +42,40 @@ const ResultsPanel = ({
       }}
     >
       <div style={{ 
-        fontWeight: 600, 
-        marginBottom: 6,
-        fontSize: "14px",
-        // Mobile responsive
-        [`@media (max-width: 480px)`]: {
-          fontSize: "12px"
-        }
-      }}>Results</div>
-
-      {loadingStats ? (
-        <div style={{
-          fontSize: "12px",
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: open ? "space-between" : "center", 
+        gap: 8,
+        marginBottom: open ? 6 : 0 
+      }}>
+        <div style={{ 
+          fontWeight: 600, 
+          fontSize: "14px",
           // Mobile responsive
-          [`@media (max-width: 480px)`]: {
-            fontSize: "11px"
-          }
-        }}>Calculating... (Fetching POWER data by year)</div>
+          [`@media (max-width: 480px)`]: { fontSize: "12px" }
+        }}>Results</div>
+        <button 
+          onClick={onToggle} 
+          style={{ 
+            ...btn("#2b2f36"), 
+            padding: open ? "4px 8px" : "4px 10px", 
+            fontSize: 12 
+          }}
+        >
+          {open ? "Hide" : "Show"}
+        </button>
+      </div>
+
+      {/* Collapsible content */}
+      <div style={{ display: open ? "block" : "none" }}>
+      {loadingStats ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 16, height: 16, border: "2px solid #66aaff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <div style={{ fontSize: "12px" }}>
+            Loading...
+          </div>
+          <style>{`@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }`}</style>
+        </div>
       ) : statsErr ? (
         <div style={{
           fontSize: "12px",
@@ -167,6 +190,7 @@ const ResultsPanel = ({
           }
         }}>Select a date in the bottom left and click "Calculate Probability".</div>
       )}
+      </div>
     </div>
   );
 };
