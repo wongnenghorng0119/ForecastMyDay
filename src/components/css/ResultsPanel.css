@@ -1,0 +1,134 @@
+:root{
+  --hdr-h: 100px;
+  --fg:#eadfcb; --muted:#b7b0a0; --accent:#d4af37; --accent-2:#89b4ff;
+  --glass:rgba(234,223,203,.06); --border:rgba(234,223,203,.14); --blur:16px;
+  /* 收起时云朵使用和底部一致的黑色不透明背景 */
+  --solid-1:#0c1220; --solid-2:#080c18;
+}
+
+/* -------- Insight Panel（右侧） -------- */
+.insight-panel{
+  position: fixed;
+  top: calc(var(--hdr-h) + 12px);
+  bottom: 18px;
+  z-index: 3;
+  width: 220px;
+  padding: 10px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(12,18,32,.86), rgba(8,12,24,.86));
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 50px rgba(0,0,0,.42), 0 0 0 1px rgba(137,180,255,.06) inset;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  display: grid;
+  grid-template-rows: auto auto auto auto; /* hdr + list + footnote + CSV */
+  gap: 8px;
+  transform: translateX(0);
+  transition: transform .32s cubic-bezier(.22,1,.36,1), opacity .2s ease;
+}
+.insight-panel.right{ right: 12px; left: auto; }
+.insight-panel.is-collapsed{ transform: translateX(calc(100% + 10px)); opacity: .95; pointer-events: none; }
+
+.insight-hdr{ display:flex; justify-content:flex-start; }
+.insight-toggle{
+  width: 28px; height: 28px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--border); color: var(--fg);
+  display: grid; place-items: center; cursor: pointer;
+}
+.insight-toggle:hover{ transform: translateY(-1px); }
+
+/* KPI 列表（两列：圆环 + 文本） */
+.kpi-list.mini{ display: grid; gap: 8px; }
+.kpi-row.mini{
+  display: grid; grid-template-columns: 42px 1fr; align-items: center;
+  padding: 10px; border-radius: 12px;
+  background: rgba(234,223,203,.05);
+  border: 1px solid var(--border);
+}
+
+/* ===== 修复：把 mask 放到伪元素上，百分比文字显示在最上层 ===== */
+.kpi-row.mini .gauge{
+  --gcolor: var(--accent);
+  --p: 0;
+  position: relative;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: transparent;           /* 圆环画在伪元素上 */
+  display: grid; place-items: center;
+}
+/* 底轨 */
+.kpi-row.mini .gauge::before{
+  content:"";
+  position:absolute; inset:0; border-radius:50%;
+  background: conic-gradient(rgba(255,255,255,.10) 0 360deg);
+  mask: radial-gradient(circle at 50% 50%, transparent 48%, #000 63%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset;
+  z-index: 1; pointer-events:none;
+}
+/* 进度环 */
+.kpi-row.mini .gauge::after{
+  content:"";
+  position:absolute; inset:0; border-radius:50%;
+  background: conic-gradient(var(--gcolor) calc(var(--p)*1%), rgba(255,255,255,0) 0);
+  mask: radial-gradient(circle at 50% 50%, transparent 48%, #000 63%);
+  box-shadow: 0 0 22px rgba(212,175,55,.20);
+  z-index: 1; pointer-events:none;
+}
+/* 中央百分比文本（不再被 mask） */
+.kpi-row.mini .gauge .gauge-val{
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  font-size:12px; font-weight:800; color:var(--fg);
+  text-shadow: 0 0 4px rgba(0,0,0,.35);
+  z-index: 2; pointer-events:none;
+}
+
+.kpi.high .gauge{ --gcolor: #ffd166; }
+.kpi.medium .gauge{ --gcolor: #f59e0b; }
+.kpi.low .gauge{ --gcolor: #60a5fa; }
+
+/* 旁边文案：只显示 veryhot 等短标签；meta 白色，和上面留一点距离 */
+.kpi-text.mini .lab-short{
+  font-size:12px; font-weight:800; color:rgba(255,255,255,.92);
+  line-height:1.05;
+}
+.kpi-text.mini .meta{
+  font-size: 11px; line-height:1.05; color:#fff; opacity:1;
+  margin-top: 2px;           /* 与上面留一点距离 */
+}
+
+/* 脚注：两行 justify */
+.footnote-left.mini{ font-size: 11px; color: var(--muted); }
+.footnote-left.mini .justify{
+  text-align: left; text-justify: inter-word;
+}
+.footnote-left.mini .justify::after{
+  content:""; display:inline-block; width:100%;
+}
+
+/* CSV 按钮（第一项目风格） */
+.csv-btn.mini{
+  height: 34px; padding: 0 10px; border-radius: 10px; text-align: center;
+  background: var(--glass); border: 1px solid var(--border); color: var(--fg);
+  cursor: pointer;
+}
+.csv-btn.mini:hover{ transform: translateY(-1px); }
+
+/* 收起时右侧的云朵“小标签”：黑色不透明背景，和底部一致 */
+.insight-tab.mini.right{
+  position: fixed; right: 6px; top: calc(var(--hdr-h) + 12px);
+  z-index: 3; width: 30px; height: 30px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--border); color: var(--fg);
+  display: grid; place-items: center; cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
+}
+.insight-tab.mini.right.dark{
+  background: linear-gradient(180deg, var(--solid-1), var(--solid-2));
+  border: 1px solid var(--border);
+}
+
+/* 状态样式 */
+.insight-loading{ display:flex; align-items:center; gap:8px; font-size:12px; }
+.spinner{ width:18px; height:18px; border-radius:50%; border:2px solid rgba(234,223,203,.2); border-top-color:var(--accent); animation: spin .8s linear infinite; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.insight-error{ font-size:12px; color:#ff6b6b; }
+.insight-hint{ font-size:12px; opacity:.9; text-align: center; color: whitesmoke;}

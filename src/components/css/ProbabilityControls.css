@@ -1,0 +1,94 @@
+:root{
+  --hdr-h: 100px;
+  --fg:#eadfcb; --muted:#b7b0a0; --accent:#d4af37; --accent-2:#1f8fff;
+  --bg-0:#060a14; --bg-1:#0a1020; --bg-2:#0b1226;
+  --glass:rgba(234,223,203,.06); --border:rgba(234,223,203,.14); --blur:16px;
+  --toggle:34px;
+  /* 实色（不透明）深色背景，收起按钮使用 */
+  --solid-1:#0c1220; --solid-2:#080c18;
+}
+
+/* 面板更小 */
+.advisor-panel{
+  position:fixed; left:50%; bottom:18px; z-index:4;
+  width:min(460px,86vw); max-height:calc(100vh - var(--hdr-h) - 56px);
+  padding:12px clamp(10px, 2vw, 14px); border-radius:14px;
+  background:linear-gradient(180deg, rgba(12,18,32,.78), rgba(8,12,24,.78));
+  border:1px solid var(--border);
+  box-shadow:0 24px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(137,180,255,.06) inset;
+  transform:translate(-50%,0);
+  backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur));
+}
+.advisor-panel.small .panel-title-compact{
+  text-align:center; font-weight:800; letter-spacing:.25px; font-size:16px; margin-bottom:8px; color: aliceblue;
+}
+
+/* 折叠后完全隐藏面板本体 */
+.advisor-panel.is-hidden{
+  transform:translate(-50%, calc(100% + 22px));
+  opacity:0; pointer-events:none;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), opacity .2s ease;
+}
+
+/* 云朵（面板右上角） */
+.collapse-toggle{
+  position:absolute; right:8px; top:8px; width:var(--toggle); height:var(--toggle); border-radius:999px;
+  background:var(--glass); border:1px solid var(--border); color:var(--fg);
+  display:grid; place-items:center; cursor:pointer; transition:transform .15s ease;
+}
+.collapse-toggle:hover{ transform:translateY(-1px); }
+
+/* 位置 chip（第一版风格） */
+.chip-row{ display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 6px; }
+.chip-row.centered{ justify-content:center; }
+.chip-row.tight .chip{ padding:4px 8px; font-size:11px; }
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border:1px dashed var(--border);
+  background:rgba(234,223,203,.04); border-radius:999px; font-size:12px;
+  color:rgba(255,255,255,.86);
+}
+.chip .chip-val{ margin-left:4px; font-weight:800; color:var(--fg); }
+.chip-location .pin-icon{ margin-right:2px; }
+
+/* 日期一行 */
+.date-row{ display:flex; justify-content:center; }
+.date-inline{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:0 12px; height:40px; border-radius:10px;
+  background:var(--glass); border:1px solid var(--border); color:var(--fg);
+  cursor:pointer; min-width:240px;
+}
+.date-inline:hover{ transform: translateY(-1px); }
+.date-text{ font-size:14px; font-weight:700; line-height:1; }
+.date-ico{ font-size:16px; line-height:1; opacity:.95; }
+
+/* CTA（金色） */
+.primary{ height:40px; padding:0 16px; border-radius:12px; border:1px solid rgba(212,175,55,.55);
+  background:linear-gradient(180deg, rgba(212,175,55,.36), rgba(212,175,55,.18)); font-weight:800; }
+.primary.sm{ height:38px; padding:0 14px; }
+.simple .panel-body{ display:grid; gap:10px; justify-items:center; }
+
+/* —— 收起后只显示底部中间的一颗云朵按钮（非透明） —— */
+.advisor-peek-cloud{
+  position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+  z-index:5; width:40px; height:40px; border-radius:999px;
+  background:linear-gradient(180deg, var(--solid-1), var(--solid-2));
+  border:1px solid var(--border); color:var(--fg);
+  display:grid; place-items:center; cursor:pointer;
+  box-shadow:0 12px 28px rgba(0,0,0,.35);
+}
+.advisor-peek-cloud:hover{ transform:translateX(-50%) translateY(-1px); }
+
+/* Modal 按钮 */
+.modal-btn{ border-radius:10px; padding:8px 16px; font-size:14px; cursor:pointer;
+  border:1px solid transparent; background:transparent; color:#ddd; }
+.modal-btn.ghost{ background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color:#ddd; }
+.modal-btn.confirm{ background: linear-gradient(180deg, rgba(212,175,55,.36), rgba(212,175,55,.18));
+  border-color: rgba(212,175,55,.55); color:#fff; }
+
+/* 移动端收紧 */
+@media (max-width: 480px){
+  .advisor-panel{ width: min(90vw, 440px); padding: 10px; }
+  .date-inline{ min-width: 210px; }
+}
