@@ -140,7 +140,7 @@ export default function ProbabilityInsights({
     <div
       style={{
         display: "grid",
-        gap: 12,
+        gap: isExpanded ? 12 : 0,
         color: "#e5e7eb",
         width: "100%",
         maxWidth: "100%",
@@ -221,44 +221,42 @@ export default function ProbabilityInsights({
       </div>
 
       {/* Chart Card */}
-      <div
-        style={{
-          border: "1px solid rgba(255,255,255,0.12)",
-          background: "rgba(255,255,255,0.04)",
-          borderRadius: 12,
-          padding: 12,
-          overflowX: "auto",
-          maxHeight: isExpanded ? "400px" : "0",
-          opacity: isExpanded ? 1 : 0,
-          overflow: "hidden",
-          transition: "all 0.3s ease",
-          marginBottom: isExpanded ? "12px" : "0",
-        }}
-      >
-        {trimmed.length === 0 ? (
-          <div style={{ 
-            color: "#9ca3af", 
-            fontSize: 12,
-            // Mobile responsive
-            [`@media (max-width: 480px)`]: {
-              fontSize: "11px"
-            }
-          }}>No data</div>
-        ) : (
-          <svg 
-            width={width} 
-            height={height} 
-            role="img" 
-            aria-label="Probability bar chart"
-            style={{
+      {isExpanded && (
+        <div
+          style={{
+            border: "1px solid rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.04)",
+            borderRadius: 12,
+            padding: 12,
+            overflowX: "auto",
+            transition: "all 0.3s ease",
+            marginBottom: "2px",
+          }}
+        >
+          {trimmed.length === 0 ? (
+            <div style={{ 
+              color: "#9ca3af", 
+              fontSize: 12,
               // Mobile responsive
               [`@media (max-width: 480px)`]: {
-                maxWidth: "100%",
-                height: "auto"
+                fontSize: "11px"
               }
-            }}
-          >
-            <g transform={`translate(${margin.left},${margin.top})`}>
+            }}>No data</div>
+          ) : (
+            <svg 
+              width={width} 
+              height={200} 
+              role="img" 
+              aria-label="Probability bar chart"
+              style={{
+                // Mobile responsive
+                [`@media (max-width: 480px)`]: {
+                  maxWidth: "100%",
+                  height: "auto"
+                }
+              }}
+            >
+              <g transform={`translate(${margin.left},${margin.top})`}>
               {/* Y grid + ticks */}
               {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
                 const val = t * maxValue;
@@ -317,22 +315,23 @@ export default function ProbabilityInsights({
                   </g>
                 );
               })}
-            </g>
-          </svg>
-        )}
-      </div>
+              </g>
+            </svg>
+          )}
+        </div>
+      )}
 
-      {/* Analysis Card */}
+      {/* Analysis Card (vertical scroll) */}
+      {isExpanded && (
       <div
         style={{
           border: "1px solid rgba(255,255,255,0.12)",
           background: "rgba(255,255,255,0.04)",
           borderRadius: 12,
           padding: 12,
-          maxHeight: isExpanded ? "300px" : "0",
-          opacity: isExpanded ? 1 : 0,
-          overflow: "hidden",
           transition: "all 0.3s ease",
+          maxHeight: "40vh",
+          overflowY: "auto",
         }}
       >
         {loading && (
@@ -448,6 +447,7 @@ export default function ProbabilityInsights({
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
