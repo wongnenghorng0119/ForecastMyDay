@@ -33,7 +33,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
   const searchAbortRef = useRef(null);
   const powerAbortRef = useRef(null);
 
-  // Probability statistics UI state
+  // Probability statistics UI state - now handled by calendar
   const [month, setMonth] = useState(6);
   const [day, setDay] = useState(15);
   const [windowDays, setWindowDays] = useState(3);
@@ -56,6 +56,11 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
       URL.revokeObjectURL(csvURL);
       setCsvURL(null);
     }
+
+    // Update state with the new values
+    setMonth(m);
+    setDay(d);
+    setWindowDays(w);
 
     try {
       const rows = await fetchPowerDailyRange(lat, lng, ac.signal);
@@ -144,12 +149,6 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
       </MapContainer>
 
       <ProbabilityControls
-        month={month}
-        setMonth={setMonth}
-        day={day}
-        setDay={setDay}
-        windowDays={windowDays}
-        setWindowDays={setWindowDays}
         selectedArea={selectedArea}
         onCalculate={runStats}
       />
