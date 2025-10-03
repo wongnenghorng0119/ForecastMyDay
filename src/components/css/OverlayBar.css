@@ -1,0 +1,286 @@
+:root {
+  --hdr-h: 100px;
+  --glass: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.1);
+  --hover: rgba(255, 255, 255, 0.12);
+  --text: rgba(255, 255, 255, 0.88);
+  --muted: rgba(255, 255, 255, 0.65);
+  --hdr-bg-solid: rgba(10, 15, 25, 0.92);
+}
+
+/* 固定顶层 */
+.hdr {
+  position: fixed;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  user-select: none;
+  pointer-events: auto;
+}
+
+/* 胶囊 SVG */
+.hdr-shape {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.5));
+}
+.hdr-shape path {
+  fill: rgba(10, 15, 25, 0.92) !important;
+  stroke: rgba(255, 255, 255, 0.25);
+}
+.hdr-shape circle {
+  fill: rgba(10, 15, 25, 0.92) !important;
+  stroke: rgba(255, 255, 255, 0.3);
+}
+
+/* 三列 */
+.hdr-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 280px 100px 280px;
+  align-items: center;
+  height: var(--hdr-h);
+  padding: 0 20px;
+  gap: 0;
+}
+.hdr-left,
+.hdr-right {
+  width: 100%;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: visible;
+}
+.hdr-left { justify-content: center; }
+
+.hdr-center {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 品牌 */
+.brand {
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, #fff, #d4af37 60%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* —— 黑洞动画 —— */
+.blackhole-container {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+  margin: auto;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.blackhole-container.absorbing { width: 100px; height: 100px; }
+.blackhole-container.absorbing .blackhole-ring-outer { animation: spin-cw 1.5s linear infinite; }
+.blackhole-container.absorbing .blackhole-ring-inner { animation: spin-ccw 1s linear infinite; }
+.blackhole-container.absorbing .blackhole-core {
+  animation: pulse-glow-intense 0.8s ease-in-out infinite;
+  box-shadow: inset 0 0 30px rgba(139, 92, 246, 0.9), 0 0 50px rgba(139, 92, 246, 0.6);
+}
+.blackhole-ring-outer { position: absolute; inset: 0; animation: spin-cw 4s linear infinite; }
+.blackhole-ring-outer-inner {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(192, 132, 252, 0.8);
+  border-right-color: rgba(96, 165, 250, 0.8);
+}
+.blackhole-ring-inner { position: absolute; inset: 8px; animation: spin-ccw 3s linear infinite; }
+.blackhole-ring-inner-inner {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(103, 232, 249, 0.8);
+  border-left-color: rgba(216, 180, 254, 0.7);
+}
+.blackhole-core {
+  position: relative;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: radial-gradient(circle at center, #000 0%, #581c87 50%, #000 100%);
+  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.6), 0 0 30px rgba(139, 92, 246, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.blackhole-center { position: absolute; inset: 8px; border-radius: 50%; background: #000; opacity: 0.8; }
+
+.blackhole-particle {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(103, 232, 249, 0.9); left: 50%; top: 50%;
+  animation: particle-float 2s ease-out infinite;
+}
+.blackhole-particle:nth-child(1) { transform: rotate(0deg) translate(25px) scale(0); animation-delay: 0s; }
+.blackhole-particle:nth-child(2) { transform: rotate(45deg) translate(25px) scale(0); animation-delay: 0.2s; }
+.blackhole-particle:nth-child(3) { transform: rotate(90deg) translate(25px) scale(0); animation-delay: 0.4s; }
+.blackhole-particle:nth-child(4) { transform: rotate(135deg) translate(25px) scale(0); animation-delay: 0.6s; }
+.blackhole-particle:nth-child(5) { transform: rotate(180deg) translate(25px) scale(0); animation-delay: 0.8s; }
+.blackhole-particle:nth-child(6) { transform: rotate(225deg) translate(25px) scale(0); animation-delay: 1s; }
+.blackhole-particle:nth-child(7) { transform: rotate(270deg) translate(25px) scale(0); animation-delay: 1.2s; }
+.blackhole-particle:nth-child(8) { transform: rotate(315deg) translate(25px) scale(0); animation-delay: 1.4s; }
+
+/* —— 搜索框（沿用第一项目 UI，并加上 mic-slot） —— */
+.sbox { position: relative; width: 100%; max-width: none; }
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 36px;
+  background: var(--hdr-bg-solid) !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 10px;
+  backdrop-filter: none;
+  box-sizing: border-box;
+}
+.search .icon {
+  width: 16px; height: 16px; margin-left: 10px; opacity: 0.85; fill: var(--muted);
+}
+.search .icon.clickable { cursor: pointer; }
+.search input {
+  flex: 1; height: 100%;
+  padding: 0 36px 0 10px; /* 右侧留位给麦克风 */
+  margin-left: 6px;
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-size: 13px; letter-spacing: 0.02em;
+}
+
+/* 麦克风落位在同一框内右侧 */
+.mic-slot {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mic-slot > * {
+  /* 尽量把第三方按钮压成 icon 风格 */
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* —— 动画 —— */
+@keyframes spin-cw { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spin-ccw { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.6), 0 0 30px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: inset 0 0 30px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.5); }
+}
+@keyframes pulse-glow-intense {
+  0%, 100% { box-shadow: inset 0 0 30px rgba(139, 92, 246, 0.9), 0 0 50px rgba(139, 92, 246, 0.6); }
+  50% { box-shadow: inset 0 0 50px rgba(139, 92, 246, 1), 0 0 80px rgba(139, 92, 246, 0.8); }
+}
+@keyframes particle-float {
+  0% { transform: rotate(var(--angle, 0deg)) translate(25px) scale(0); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: rotate(var(--angle, 0deg)) translate(0px) scale(1); opacity: 0; }
+}
+
+/* —— 响应式 —— */
+@media (max-width: 920px) {
+  .hdr-inner { grid-template-columns: 280px 100px 280px; }
+  .hdr-left { padding: 0 16px; }
+  .hdr-right { padding: 0 16px; }
+  .brand { font-size: 20px; }
+}
+@media (max-width: 768px) {
+  :root { --hdr-h: 80px; }
+  .hdr { top: 16px; }
+  .hdr-inner { grid-template-columns: 200px 80px 200px; }
+  .hdr-center { width: 80px; height: 80px; }
+  .brand { font-size: 18px; }
+  .search { height: 34px; }
+  .blackhole-container { width: 60px; height: 60px; }
+  .blackhole-core { width: 36px; height: 36px; }
+}
+@media (max-width: 640px) {
+  .hdr-inner { grid-template-columns: 140px 80px 140px; }
+  .brand { font-size: 16px; }
+  .search { height: 32px; }
+  .search .icon { width: 16px; height: 16px; }
+  .search input { font-size: 13px; }
+}
+
+/* 左列从居中改为靠左，并允许一行排品牌+开关 */
+.hdr-left { justify-content: flex-start; }
+.hdr-left-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* —— 2D/3D 左右开关 —— */
+.mode-switch {
+  position: relative;
+  width: 120px;
+  height: 32px;
+  padding: 0 2px;
+  background: var(--hdr-bg-solid);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer; /* 整体可点击（也支持键盘） */
+}
+.ms-label {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+.ms-label.active { color: var(--text); font-weight: 600; }
+
+.ms-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(50% - 4px);
+  height: calc(100% - 4px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.08);
+  transform: translateX(0%);
+  transition: transform 0.25s ease;
+}
+.ms-knob.right { transform: translateX(100%); }
+
+/* 小屏优化：开关略缩小 */
+@media (max-width: 768px) {
+  .mode-switch { width: 108px; height: 30px; }
+  .ms-label { font-size: 11px; }
+}
+@media (max-width: 640px) {
+  .mode-switch { width: 100px; height: 28px; }
+}

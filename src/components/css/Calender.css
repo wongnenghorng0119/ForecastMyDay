@@ -1,0 +1,143 @@
+.calendar-container {
+  background: rgba(0,0,0,0.8);
+  border-radius: 12px;
+  padding: 16px;
+  color: #fff;
+  font-family: system-ui;
+  min-width: 280px;
+  max-width: 320px;
+
+
+}
+
+@media (max-width: 480px) {
+  .calendar-container {
+    min-width: 260px;
+    max-width: 280px;
+    padding: 12px;
+  }
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.nav-button {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.month-year {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.day-names {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.day-name {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  padding: 4px 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+/* Date range display */
+.date-range-display {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.date-range-label {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.date-range-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Calendar day styles (moved from <style jsx>) */
+.calendar-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.calendar-day:hover:not(.disabled) {
+  background: rgba(31, 143, 255, 0.2);
+  color: #1f8fff;
+}
+
+.calendar-day.today {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 700;
+}
+
+.calendar-day.selected {
+  background: #1f8fff;
+  color: #fff;
+  font-weight: 700;
+}
+
+.calendar-day.in-range {
+  background: rgba(31, 143, 255, 0.3);
+  color: #fff;
+}
+
+.calendar-day.hovered {
+  background: rgba(31, 143, 255, 0.4);
+  color: #fff;
+}
+
+.calendar-day.disabled {
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.calendar-day.empty {
+  cursor: default;
+}
+
+.calendar-day.empty:hover {
+  background: transparent;
+}

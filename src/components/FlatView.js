@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./FlatView/MapStyles.css";
+import "./css/MapStyles.css";
 import MapInteractions from "./FlatView/MapInteractions";
 import ProbabilityControls from "./FlatView/ProbabilityControls";
 import ResultsPanel from "./FlatView/ResultsPanel";

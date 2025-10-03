@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./css/Calender.css";
 
 const Calendar = ({ 
   onDateRangeChange, 
@@ -178,22 +179,22 @@ const Calendar = ({
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div style={calendarContainerStyle}>
+    <div className="calendar-container">
       {/* Calendar Header */}
-      <div style={calendarHeaderStyle}>
+      <div className="calendar-header">
         <button 
           onClick={() => navigateMonth(-1)}
-          style={navButtonStyle}
+          className="nav-button"
           disabled={isDateDisabled(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
         >
           ‹
         </button>
-        <div style={monthYearStyle}>
+        <div className="month-year">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </div>
         <button 
           onClick={() => navigateMonth(1)}
-          style={navButtonStyle}
+          className="nav-button"
           disabled={isDateDisabled(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
         >
           ›
@@ -201,185 +202,24 @@ const Calendar = ({
       </div>
 
       {/* Day Names Header */}
-      <div style={dayNamesStyle}>
+      <div className="day-names">
         {dayNames.map(day => (
-          <div key={day} style={dayNameStyle}>{day}</div>
+          <div key={day} className="day-name">{day}</div>
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div style={calendarGridStyle}>
+      <div className="calendar-grid">
         {renderCalendar()}
       </div>
 
       {/* Selected Date Range Display */}
-      <div style={dateRangeDisplayStyle}>
-        <div style={dateRangeLabelStyle}>Selected Range:</div>
-        <div style={dateRangeValueStyle}>{formatDateRange()}</div>
+      <div className="date-range-display">
+        <div className="date-range-label">Selected Range:</div>
+        <div className="date-range-value">{formatDateRange()}</div>
       </div>
-
-
-      {/* Calendar Styles */}
-      <style jsx>{`
-        .calendar-day {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 32px;
-          height: 32px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 500;
-          transition: all 0.2s ease;
-          position: relative;
-        }
-
-        .calendar-day:hover:not(.disabled) {
-          background: rgba(31, 143, 255, 0.2);
-          color: #1f8fff;
-        }
-
-        .calendar-day.today {
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
-          font-weight: 700;
-        }
-
-        .calendar-day.selected {
-          background: #1f8fff;
-          color: #fff;
-          font-weight: 700;
-        }
-
-        .calendar-day.in-range {
-          background: rgba(31, 143, 255, 0.3);
-          color: #fff;
-        }
-
-        .calendar-day.hovered {
-          background: rgba(31, 143, 255, 0.4);
-          color: #fff;
-        }
-
-        .calendar-day.disabled {
-          color: #666;
-          cursor: not-allowed;
-          opacity: 0.5;
-        }
-
-        .calendar-day.empty {
-          cursor: default;
-        }
-
-        .calendar-day.empty:hover {
-          background: transparent;
-        }
-      `}</style>
     </div>
   );
-};
-
-// Styles
-const calendarContainerStyle = {
-  background: "rgba(0,0,0,0.8)",
-  borderRadius: "12px",
-  padding: "16px",
-  color: "#fff",
-  fontFamily: "system-ui",
-  minWidth: "280px",
-  maxWidth: "320px",
-  // Mobile responsive
-  [`@media (max-width: 480px)`]: {
-    minWidth: "260px",
-    maxWidth: "280px",
-    padding: "12px"
-  }
-};
-
-const calendarHeaderStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "16px"
-};
-
-const navButtonStyle = {
-  background: "rgba(255,255,255,0.1)",
-  border: "none",
-  borderRadius: "6px",
-  color: "#fff",
-  cursor: "pointer",
-  padding: "8px 12px",
-  fontSize: "16px",
-  fontWeight: "bold",
-  transition: "all 0.2s ease"
-};
-
-const monthYearStyle = {
-  fontSize: "16px",
-  fontWeight: "600",
-  color: "#fff"
-};
-
-const dayNamesStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  gap: "4px",
-  marginBottom: "8px"
-};
-
-const dayNameStyle = {
-  textAlign: "center",
-  fontSize: "12px",
-  fontWeight: "600",
-  color: "#9ca3af",
-  padding: "4px 0"
-};
-
-const calendarGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(7, 1fr)",
-  gap: "4px",
-  marginBottom: "16px"
-};
-
-const dateRangeDisplayStyle = {
-  background: "rgba(255,255,255,0.05)",
-  borderRadius: "8px",
-  padding: "12px",
-  marginBottom: "12px",
-  border: "1px solid rgba(255,255,255,0.1)"
-};
-
-const dateRangeLabelStyle = {
-  fontSize: "12px",
-  color: "#9ca3af",
-  marginBottom: "4px"
-};
-
-const dateRangeValueStyle = {
-  fontSize: "14px",
-  fontWeight: "600",
-  color: "#fff"
-};
-
-const quickActionsStyle = {
-  display: "flex",
-  gap: "8px",
-  justifyContent: "center"
-};
-
-const quickActionButtonStyle = {
-  background: "rgba(31, 143, 255, 0.2)",
-  border: "1px solid rgba(31, 143, 255, 0.3)",
-  borderRadius: "6px",
-  color: "#1f8fff",
-  cursor: "pointer",
-  padding: "6px 12px",
-  fontSize: "12px",
-  fontWeight: "500",
-  transition: "all 0.2s ease"
 };
 
 export default Calendar;
