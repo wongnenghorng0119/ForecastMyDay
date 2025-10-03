@@ -26,6 +26,7 @@ export default function ProbabilityInsights({
   const [advice, setAdvice] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // Normalize input to array of {label, value}
   const series = useMemo(() => {
@@ -97,10 +98,34 @@ export default function ProbabilityInsights({
     };
   }, [autoAnalyze, trimmed, onAdvice]);
 
-  // Simple SVG bar chart
-  const width = 520;
-  const height = 240;
-  const margin = { top: 24, right: 16, bottom: 60, left: 44 };
+  // Responsive SVG bar chart dimensions
+  const getChartDimensions = () => {
+    const isMobile = window.innerWidth <= 480;
+    const isTablet = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      return {
+        width: Math.min(300, window.innerWidth - 32),
+        height: 180,
+        margin: { top: 20, right: 12, bottom: 50, left: 32 }
+      };
+    } else if (isTablet) {
+      return {
+        width: Math.min(380, window.innerWidth - 48),
+        height: 200,
+        margin: { top: 22, right: 14, bottom: 55, left: 38 }
+      };
+    } else {
+      return {
+        width: Math.min(500, window.innerWidth - 40),
+        height: 240,
+        margin: { top: 24, right: 16, bottom: 60, left: 44 }
+      };
+    }
+  };
+
+  const chartDimensions = getChartDimensions();
+  const { width, height, margin } = chartDimensions;
   const chartW = width - margin.left - margin.right;
   const chartH = height - margin.top - margin.bottom;
   const barGap = 8;
@@ -117,6 +142,10 @@ export default function ProbabilityInsights({
         display: "grid",
         gap: 12,
         color: "#e5e7eb",
+        width: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+        boxSizing: "border-box"
       }}
     >
       <div
@@ -124,9 +153,71 @@ export default function ProbabilityInsights({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          cursor: "pointer",
+          padding: "10px 16px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: 12,
+          border: "1px solid rgba(255,255,255,0.1)",
+          transition: "all 0.2s ease",
+          userSelect: "none",
+        }}
+        onClick={() => setIsExpanded(!isExpanded)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(255,255,255,0.05)";
         }}
       >
-        <div style={{ fontSize: 16, fontWeight: 700 }}>{title}</div>
+        <div style={{ 
+          fontSize: 16, 
+          fontWeight: 700,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            fontSize: "14px",
+            gap: 6
+          }
+        }}>
+          <span style={{ 
+            fontSize: 18,
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "16px"
+            }
+          }}>📊</span>
+          {title}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            color: "#9ca3af",
+            fontSize: 12,
+            fontWeight: 600,
+            transition: "all 0.2s ease",
+            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px",
+              gap: 6
+            }
+          }}
+        >
+          <span>▼</span>
+          <span style={{ 
+            fontSize: 11,
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "10px"
+            }
+          }}>
+            {isExpanded ? "Hide" : "Show"}
+          </span>
+        </div>
       </div>
 
       {/* Chart Card */}
@@ -137,12 +228,36 @@ export default function ProbabilityInsights({
           borderRadius: 12,
           padding: 12,
           overflowX: "auto",
+          maxHeight: isExpanded ? "400px" : "0",
+          opacity: isExpanded ? 1 : 0,
+          overflow: "hidden",
+          transition: "all 0.3s ease",
+          marginBottom: isExpanded ? "12px" : "0",
         }}
       >
         {trimmed.length === 0 ? (
-          <div style={{ color: "#9ca3af", fontSize: 12 }}>No data</div>
+          <div style={{ 
+            color: "#9ca3af", 
+            fontSize: 12,
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px"
+            }
+          }}>No data</div>
         ) : (
-          <svg width={width} height={height} role="img" aria-label="Probability bar chart">
+          <svg 
+            width={width} 
+            height={height} 
+            role="img" 
+            aria-label="Probability bar chart"
+            style={{
+              // Mobile responsive
+              [`@media (max-width: 480px)`]: {
+                maxWidth: "100%",
+                height: "auto"
+              }
+            }}
+          >
             <g transform={`translate(${margin.left},${margin.top})`}>
               {/* Y grid + ticks */}
               {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
@@ -151,7 +266,13 @@ export default function ProbabilityInsights({
                 return (
                   <g key={i} transform={`translate(0,${y})`}>
                     <line x1={0} x2={chartW} stroke="#2b2f36" />
-                    <text x={-8} y={4} textAnchor="end" fontSize={10} fill="#9ca3af">
+                    <text 
+                      x={-8} 
+                      y={4} 
+                      textAnchor="end" 
+                      fontSize={window.innerWidth <= 480 ? 8 : 10} 
+                      fill="#9ca3af"
+                    >
                       {formatValue(t <= 1 ? t : t / 100)}
                     </text>
                   </g>
@@ -175,14 +296,20 @@ export default function ProbabilityInsights({
                       rx={6}
                       fill="#60a5fa"
                     />
-                    <text x={barWidth / 2} y={y - 6} textAnchor="middle" fontSize={10} fill="#e5e7eb">
+                    <text 
+                      x={barWidth / 2} 
+                      y={y - 6} 
+                      textAnchor="middle" 
+                      fontSize={window.innerWidth <= 480 ? 8 : 10} 
+                      fill="#e5e7eb"
+                    >
                       {formatValue(v)}
                     </text>
                     <text
                       x={barWidth / 2}
                       y={chartH + 14}
                       textAnchor="middle"
-                      fontSize={10}
+                      fontSize={window.innerWidth <= 480 ? 8 : 10}
                       fill="#cbd5e1"
                     >
                       {d.label}
@@ -202,10 +329,25 @@ export default function ProbabilityInsights({
           background: "rgba(255,255,255,0.04)",
           borderRadius: 12,
           padding: 12,
+          maxHeight: isExpanded ? "300px" : "0",
+          opacity: isExpanded ? 1 : 0,
+          overflow: "hidden",
+          transition: "all 0.3s ease",
         }}
       >
         {loading && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#cbd5e1" }}>
+          <div style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: 8, 
+            color: "#cbd5e1",
+            fontSize: "12px",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px",
+              gap: 6
+            }
+          }}>
             <span
               style={{
                 display: "inline-block",
@@ -215,13 +357,29 @@ export default function ProbabilityInsights({
                 borderTop: "2px solid #cbd5e1",
                 borderRadius: "50%",
                 animation: "spin 0.9s linear infinite",
+                // Mobile responsive
+                [`@media (max-width: 480px)`]: {
+                  width: 12,
+                  height: 12
+                }
               }}
             />
             Analyzing with Gemini...
           </div>
         )}
         {error && (
-          <div style={{ color: "#fca5a5", background: "rgba(239,68,68,0.15)", padding: 8, borderRadius: 8 }}>
+          <div style={{ 
+            color: "#fca5a5", 
+            background: "rgba(239,68,68,0.15)", 
+            padding: 8, 
+            borderRadius: 8,
+            fontSize: "12px",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px",
+              padding: 6
+            }
+          }}>
             Error: {error}
           </div>
         )}
@@ -229,18 +387,63 @@ export default function ProbabilityInsights({
           <div style={{ display: "grid", gap: 12 }}>
             {summary && (
               <div>
-                <div style={{ fontWeight: 700, marginBottom: 6, color: "#e5e7eb" }}>Summary</div>
-                <div style={{ whiteSpace: "pre-wrap", color: "#cbd5e1", lineHeight: 1.6 }}>{summary}</div>
+                <div style={{ 
+                  fontWeight: 700, 
+                  marginBottom: 6, 
+                  color: "#e5e7eb",
+                  fontSize: "12px",
+                  // Mobile responsive
+                  [`@media (max-width: 480px)`]: {
+                    fontSize: "11px"
+                  }
+                }}>Summary</div>
+                <div style={{ 
+                  whiteSpace: "pre-wrap", 
+                  color: "#cbd5e1", 
+                  lineHeight: 1.6,
+                  fontSize: "12px",
+                  // Mobile responsive
+                  [`@media (max-width: 480px)`]: {
+                    fontSize: "11px",
+                    lineHeight: 1.4
+                  }
+                }}>{summary}</div>
               </div>
             )}
             {advice && (
               <div>
-                <div style={{ fontWeight: 700, marginBottom: 6, color: "#e5e7eb" }}>Advice</div>
-                <div style={{ whiteSpace: "pre-wrap", color: "#cbd5e1", lineHeight: 1.6 }}>{advice}</div>
+                <div style={{ 
+                  fontWeight: 700, 
+                  marginBottom: 6, 
+                  color: "#e5e7eb",
+                  fontSize: "12px",
+                  // Mobile responsive
+                  [`@media (max-width: 480px)`]: {
+                    fontSize: "11px"
+                  }
+                }}>Advice</div>
+                <div style={{ 
+                  whiteSpace: "pre-wrap", 
+                  color: "#cbd5e1", 
+                  lineHeight: 1.6,
+                  fontSize: "12px",
+                  // Mobile responsive
+                  [`@media (max-width: 480px)`]: {
+                    fontSize: "11px",
+                    lineHeight: 1.4
+                  }
+                }}>{advice}</div>
               </div>
             )}
             {!summary && !advice && (
-              <div style={{ color: "#9ca3af" }}>No analysis yet.</div>
+              <div style={{ 
+                color: "#9ca3af",
+                fontSize: "12px",
+                // Mobile responsive
+                [`@media (max-width: 480px)`]: {
+                  fontSize: "11px"
+                }
+              }}>No analysis yet.</div>
             )}
           </div>
         )}

@@ -1,5 +1,5 @@
 import React from "react";
-import { btn } from "../../utils/styles";
+import { btn, responsivePanel } from "../../utils/styles";
 
 const ResultsPanel = ({
   loadingStats,
@@ -14,33 +14,81 @@ const ResultsPanel = ({
   return (
     <div
       style={{
-        position: "absolute",
+        ...responsivePanel("absolute"),
         right: 12,
         bottom: 12,
-        zIndex: 2147483647,
         minWidth: 280,
         maxWidth: 420,
-        padding: 12,
-        borderRadius: 10,
-        background: "rgba(0,0,0,0.55)",
-        color: "#fff",
-        fontFamily: "system-ui",
-        backdropFilter: "blur(6px)",
+        // Mobile responsive
+        [`@media (max-width: 768px)`]: {
+          right: 8,
+          bottom: 8,
+          minWidth: 260,
+          maxWidth: "calc(100vw - 16px)"
+        },
+        [`@media (max-width: 480px)`]: {
+          right: 4,
+          bottom: 4,
+          minWidth: "calc(100vw - 8px)",
+          maxWidth: "calc(100vw - 8px)",
+          boxSizing: "border-box"
+        }
       }}
     >
-      <div style={{ fontWeight: 600, marginBottom: 6 }}>Results</div>
+      <div style={{ 
+        fontWeight: 600, 
+        marginBottom: 6,
+        fontSize: "14px",
+        // Mobile responsive
+        [`@media (max-width: 480px)`]: {
+          fontSize: "12px"
+        }
+      }}>Results</div>
 
       {loadingStats ? (
-        <div>Calculating... (Fetching POWER data by year)</div>
+        <div style={{
+          fontSize: "12px",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            fontSize: "11px"
+          }
+        }}>Calculating... (Fetching POWER data by year)</div>
       ) : statsErr ? (
-        <div>Error: {statsErr}</div>
+        <div style={{
+          fontSize: "12px",
+          color: "#ff6b6b",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            fontSize: "11px"
+          }
+        }}>Error: {statsErr}</div>
       ) : stats ? (
         <>
-          <div style={{ marginBottom: 6, opacity: 0.85, fontSize: 12 }}>
+          <div style={{ 
+            marginBottom: 6, 
+            opacity: 0.85, 
+            fontSize: 12,
+            wordBreak: "break-word",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "10px"
+            }
+          }}>
             Sample: {stats.sampleCount} days ({month}/{day} ± {stats.windowDays}{" "}
             days, 1995—present, daily values)
           </div>
-          <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
+          <ul style={{ 
+            margin: 0, 
+            paddingLeft: 18, 
+            lineHeight: 1.6,
+            fontSize: "12px",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px",
+              paddingLeft: 14,
+              lineHeight: 1.4
+            }
+          }}>
             <li>
               Very hot (T2M &gt; 32°C): <b>{stats.veryHot.pct}%</b> (
               {stats.veryHot.hits}/{stats.veryHot.n})
@@ -70,6 +118,13 @@ const ResultsPanel = ({
               display: "flex",
               gap: 8,
               alignItems: "center",
+              flexWrap: "wrap",
+              // Mobile responsive
+              [`@media (max-width: 480px)`]: {
+                flexDirection: "column",
+                alignItems: "stretch",
+                gap: "6px"
+              }
             }}
           >
             {csvURL ? (
@@ -89,14 +144,28 @@ const ResultsPanel = ({
                 Download CSV
               </a>
             ) : null}
-            <span style={{ fontSize: 12, opacity: 0.8 }}>
+            <span style={{ 
+              fontSize: 12, 
+              opacity: 0.8,
+              wordBreak: "break-word",
+              // Mobile responsive
+              [`@media (max-width: 480px)`]: {
+                fontSize: "10px"
+              }
+            }}>
               Data source: NASA POWER (temporal=daily, point)
             </span>
           </div>
 
         </>
       ) : (
-        <div>Select a date in the bottom left and click "Calculate Probability".</div>
+        <div style={{
+          fontSize: "12px",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            fontSize: "11px"
+          }
+        }}>Select a date in the bottom left and click "Calculate Probability".</div>
       )}
     </div>
   );

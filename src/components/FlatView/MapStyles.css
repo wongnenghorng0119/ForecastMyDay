@@ -1,3 +1,20 @@
+/* Global overflow prevention */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 /* Ensure proper map rendering */
 .leaflet-container {
   background: #000 !important;
@@ -20,4 +37,54 @@
 /* Ensure proper canvas rendering */
 .leaflet-canvas-layer {
   z-index: 2 !important;
+}
+
+/* Responsive map styles */
+@media (max-width: 768px) {
+  .leaflet-container {
+    font-size: 12px !important;
+  }
+  
+  .leaflet-popup-content {
+    font-size: 12px !important;
+  }
+  
+  .leaflet-control-zoom {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .leaflet-container {
+    font-size: 11px !important;
+  }
+  
+  .leaflet-popup-content {
+    font-size: 11px !important;
+    padding: 8px !important;
+  }
+  
+  .leaflet-control-zoom {
+    font-size: 14px !important;
+  }
+  
+  .leaflet-control-zoom a {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+  }
+}
+
+/* Tooltip responsive styles */
+.label-tooltip {
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+}
+
+@media (max-width: 480px) {
+  .label-tooltip {
+    font-size: 11px !important;
+    padding: 3px 6px !important;
+  }
 }

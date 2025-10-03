@@ -1,6 +1,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import VoiceInputButton from "./VoiceInputButton";
+import { responsiveFlex } from "../utils/styles";
 
 const OverlayBar = ({
   mode,
@@ -26,15 +27,32 @@ const OverlayBar = ({
         top: 12,
         left: 12,
         zIndex: 2147483647,
-        display: "flex",
-        gap: 8,
-        alignItems: "center",
+        ...responsiveFlex("row", 8),
         padding: 6,
         borderRadius: 10,
         background: "rgba(0,0,0,0.35)",
         backdropFilter: "blur(4px)",
         color: "#fff",
         fontFamily: "system-ui",
+        flexWrap: "wrap",
+        // Mobile responsive
+        [`@media (max-width: 768px)`]: {
+          top: 8,
+          left: 8,
+          padding: 8,
+          borderRadius: 8
+        },
+        [`@media (max-width: 480px)`]: {
+          top: 4,
+          left: 4,
+          right: 4,
+          padding: 6,
+          borderRadius: 6,
+          flexDirection: "column",
+          alignItems: "stretch",
+          maxWidth: "calc(100vw - 8px)",
+          boxSizing: "border-box"
+        }
       }}
     >
       <button
@@ -51,7 +69,14 @@ const OverlayBar = ({
       </button>
 
       {mode === "globe" ? (
-        <div style={pill()}>Selected Country: {selectedName || "(None)"}</div>
+        <div style={{
+          ...pill(),
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            textAlign: "center",
+            wordBreak: "break-word"
+          }
+        }}>Selected Country: {selectedName || "(None)"}</div>
       ) : (
         <>
           {/* Search box (2D) */}
@@ -62,7 +87,16 @@ const OverlayBar = ({
               if (e.key === "Enter" && query.trim()) onSearch?.(query.trim());
             }}
             placeholder="Search location (e.g., malaysia sibu)"
-            style={input()}
+            style={{
+              ...input(),
+              maxWidth: "100%",
+              // Mobile responsive
+              [`@media (max-width: 480px)`]: {
+                width: "100%",
+                marginBottom: "4px",
+                maxWidth: "100%"
+              }
+            }}
           />
           
           {/* 语音输入按钮 */}
@@ -73,18 +107,42 @@ const OverlayBar = ({
           
           <button
             onClick={() => query.trim() && onSearch?.(query.trim())}
-            style={btn("#1f8fff")}
+            style={{
+              ...btn("#1f8fff"),
+              // Mobile responsive
+              [`@media (max-width: 480px)`]: {
+                width: "100%",
+                marginBottom: "4px"
+              }
+            }}
           >
             🔍 Search
           </button>
 
-          <div style={pill()}>
+          <div style={{
+            ...pill(),
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              textAlign: "center",
+              wordBreak: "break-word",
+              marginBottom: "4px"
+            }
+          }}>
             Selected Area:{" "}
             {selectedArea
               ? `${selectedArea.name} [${selectedArea.type}]`
               : "(None)"}
           </div>
-          <button onClick={clearArea} style={btn("#444")}>
+          <button 
+            onClick={clearArea} 
+            style={{
+              ...btn("#444"),
+              // Mobile responsive
+              [`@media (max-width: 480px)`]: {
+                width: "100%"
+              }
+            }}
+          >
             ✖️ Clear
           </button>
         </>

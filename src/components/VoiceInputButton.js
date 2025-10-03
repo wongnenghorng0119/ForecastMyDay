@@ -31,7 +31,16 @@ const VoiceInputButton = ({ onTranscript, disabled }) => {
   };
 
   return (
-    <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ 
+      position: "relative", 
+      display: "flex", 
+      alignItems: "center", 
+      gap: 8,
+      // Mobile responsive
+      [`@media (max-width: 480px)`]: {
+        gap: 4
+      }
+    }}>
       <button
         onClick={handleClick}
         disabled={disabled || isProcessing}
@@ -49,6 +58,12 @@ const VoiceInputButton = ({ onTranscript, disabled }) => {
           boxShadow: isRecording
             ? "0 0 20px rgba(255, 68, 68, 0.6)"
             : "0 0 10px rgba(31, 143, 255, 0.3)",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            minWidth: 36,
+            minHeight: 36,
+            padding: "8px"
+          }
         }}
         title={isRecording ? "Stop recording" : "Start voice input"}
       >
@@ -82,6 +97,14 @@ const VoiceInputButton = ({ onTranscript, disabled }) => {
             backdropFilter: "blur(8px)",
             boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
             animation: "slideDown 0.3s ease",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px",
+              padding: "4px 8px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              maxWidth: "200px"
+            }
           }}
         >
           {error
@@ -109,6 +132,14 @@ const VoiceInputButton = ({ onTranscript, disabled }) => {
             backdropFilter: "blur(8px)",
             boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
             animation: "slideDown 0.3s ease",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px",
+              padding: "6px 8px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              maxWidth: "250px"
+            }
           }}
         >
           ✅ "{transcript}"

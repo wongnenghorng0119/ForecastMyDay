@@ -452,6 +452,19 @@ const Loading = ({
           opacity: 0.9,
           textShadow: '0 0 20px #00bfff, 0 0 40px #ff6b35',
           animation: 'textGlow 1s infinite alternate',
+          textAlign: 'center',
+          padding: '0 20px',
+          // Mobile responsive
+          [`@media (max-width: 768px)`]: {
+            fontSize: '20px',
+            bottom: '15px',
+            padding: '0 15px'
+          },
+          [`@media (max-width: 480px)`]: {
+            fontSize: '16px',
+            bottom: '10px',
+            padding: '0 10px'
+          }
         }}
       >
         {transitionProgress < 0.2 ? '🚀 INITIATING 3D WARP DRIVE...' : 
@@ -475,6 +488,17 @@ const Loading = ({
           overflow: 'hidden',
           zIndex: 15,
           border: '2px solid #00bfff',
+          // Mobile responsive
+          [`@media (max-width: 768px)`]: {
+            width: '300px',
+            bottom: '60px',
+            height: '5px'
+          },
+          [`@media (max-width: 480px)`]: {
+            width: '250px',
+            bottom: '50px',
+            height: '4px'
+          }
         }}
       >
         <div

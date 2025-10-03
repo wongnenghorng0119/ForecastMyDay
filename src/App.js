@@ -59,10 +59,17 @@ export default function App() {
   return (
     <div
       style={{
-        width: "100vw",
+        width: "100%",
         height: "100vh",
         background: "#000",
         position: "relative",
+        overflow: "hidden",
+        boxSizing: "border-box",
+        // Mobile responsive
+        [`@media (max-width: 480px)`]: {
+          minHeight: "100vh",
+          height: "auto"
+        }
       }}
     >
       <OverlayBar

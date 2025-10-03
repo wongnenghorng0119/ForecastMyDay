@@ -58,7 +58,14 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
         onPick(d);
         flyTo(d);
       }}
-      style={{ width: "100%", height: "100%" }}
+      style={{ 
+        width: "100%", 
+        height: "100%",
+        // Mobile responsive
+        [`@media (max-width: 480px)`]: {
+          minHeight: "50vh"
+        }
+      }}
     />
   );
 };

@@ -115,7 +115,15 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
       <MapContainer
         center={[20, 0]}
         zoom={3}
-        style={{ width: "100%", height: "100%", zIndex: 1 }}
+        style={{ 
+          width: "100%", 
+          height: "100%", 
+          zIndex: 1,
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            minHeight: "50vh"
+          }
+        }}
         worldCopyJump
         whenCreated={(m) => (mapRef.current = m)}
       >
@@ -173,6 +181,23 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
             fontFamily: "system-ui",
             backdropFilter: "blur(6px)",
             border: "1px solid rgba(255,255,255,0.12)",
+            // Mobile responsive
+            [`@media (max-width: 768px)`]: {
+              right: 8,
+              top: 8,
+              minWidth: 280,
+              maxWidth: "calc(100vw - 16px)",
+              padding: 10
+            },
+            [`@media (max-width: 480px)`]: {
+              right: 4,
+              top: 4,
+              minWidth: "calc(100vw - 8px)",
+              maxWidth: "calc(100vw - 8px)",
+              padding: 8,
+              borderRadius: 6,
+              boxSizing: "border-box"
+            }
           }}
         >
           <ProbabilityInsights

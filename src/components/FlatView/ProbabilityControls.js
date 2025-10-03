@@ -1,5 +1,5 @@
 import React from "react";
-import { numInput, btn } from "../../utils/styles";
+import { numInput, btn, responsivePanel, responsiveFlex } from "../../utils/styles";
 import { clampInt } from "../../utils/helpers";
 
 const ProbabilityControls = ({
@@ -15,32 +15,60 @@ const ProbabilityControls = ({
   return (
     <div
       style={{
-        position: "absolute",
+        ...responsivePanel("absolute"),
         left: 12,
         bottom: 12,
-        zIndex: 2147483647,
-        padding: 12,
-        borderRadius: 10,
-        background: "rgba(0,0,0,0.55)",
-        color: "#fff",
-        fontFamily: "system-ui",
         minWidth: 280,
-        backdropFilter: "blur(6px)",
+        // Mobile responsive
+        [`@media (max-width: 768px)`]: {
+          left: 8,
+          bottom: 8,
+          minWidth: 260,
+          maxWidth: "calc(100vw - 16px)"
+        },
+        [`@media (max-width: 480px)`]: {
+          left: 4,
+          bottom: 4,
+          minWidth: "calc(100vw - 8px)",
+          maxWidth: "calc(100vw - 8px)",
+          boxSizing: "border-box"
+        }
       }}
     >
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>
+      <div style={{ 
+        fontWeight: 600, 
+        marginBottom: 8,
+        fontSize: "14px",
+        // Mobile responsive
+        [`@media (max-width: 480px)`]: {
+          fontSize: "12px",
+          marginBottom: 6
+        }
+      }}>
         Historical Probability (NASA POWER)
       </div>
 
       <div
         style={{
-          display: "flex",
-          gap: 8,
-          alignItems: "center",
+          ...responsiveFlex("row", 8),
           flexWrap: "wrap",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            flexDirection: "column",
+            gap: "6px"
+          }
         }}
       >
-        <label>
+        <label style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          gap: "4px",
+          fontSize: "12px",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            fontSize: "11px"
+          }
+        }}>
           Month
           <input
             type="number"
@@ -51,7 +79,16 @@ const ProbabilityControls = ({
             style={numInput()}
           />
         </label>
-        <label>
+        <label style={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          gap: "4px",
+          fontSize: "12px",
+          // Mobile responsive
+          [`@media (max-width: 480px)`]: {
+            fontSize: "11px"
+          }
+        }}>
           Day
           <input
             type="number"
@@ -62,7 +99,19 @@ const ProbabilityControls = ({
             style={numInput()}
           />
         </label>
-        <label title="Window around target date (days), e.g., 3 means ±3 days">
+        <label 
+          title="Window around target date (days), e.g., 3 means ±3 days"
+          style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            gap: "4px",
+            fontSize: "12px",
+            // Mobile responsive
+            [`@media (max-width: 480px)`]: {
+              fontSize: "11px"
+            }
+          }}
+        >
           ±Days
           <input
             type="number"
@@ -91,7 +140,17 @@ const ProbabilityControls = ({
         </button>
       </div>
 
-      <div style={{ marginTop: 10, opacity: 0.85, fontSize: 12 }}>
+      <div style={{ 
+        marginTop: 10, 
+        opacity: 0.85, 
+        fontSize: 12,
+        wordBreak: "break-word",
+        // Mobile responsive
+        [`@media (max-width: 480px)`]: {
+          fontSize: "10px",
+          marginTop: 8
+        }
+      }}>
         Location:{" "}
         {selectedArea
           ? `${selectedArea.name} (${selectedArea.lat?.toFixed(
