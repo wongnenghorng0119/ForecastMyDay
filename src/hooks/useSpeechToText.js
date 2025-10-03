@@ -26,7 +26,9 @@ export function useSpeechToText() {
       });
 
       // 创建 MediaRecorder
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
         ? "audio/webm"
         : "audio/mp4";
       

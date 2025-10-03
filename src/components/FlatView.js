@@ -6,6 +6,7 @@ import "./FlatView/MapStyles.css";
 import MapInteractions from "./FlatView/MapInteractions";
 import ProbabilityControls from "./FlatView/ProbabilityControls";
 import ResultsPanel from "./FlatView/ResultsPanel";
+import ProbabilityInsights from "./ProbabilityInsights";
 import { fetchPowerDailyRange, computeProbabilities, buildCSV } from "../utils/nasaPowerApi";
 import { searchPlace } from "../utils/geocoding";
 
@@ -155,6 +156,38 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
         selectedArea={selectedArea}
         csvURL={csvURL}
       />
+
+      {stats && (
+        <div
+          style={{
+            position: "absolute",
+            right: 12,
+            top: 12,
+            zIndex: 2147483647,
+            minWidth: 340,
+            maxWidth: 560,
+            padding: 12,
+            borderRadius: 10,
+            background: "rgba(0,0,0,0.55)",
+            color: "#fff",
+            fontFamily: "system-ui",
+            backdropFilter: "blur(6px)",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <ProbabilityInsights
+            title={`Insights${selectedArea?.name ? ` • ${selectedArea.name}` : ""}`}
+            data={{
+              "Very hot": Number(stats.veryHot.pct),
+              "Very cold": Number(stats.veryCold.pct),
+              "Very wet": Number(stats.veryWet.pct),
+              "Very windy": Number(stats.veryWindy.pct),
+              "Very uncomfortable": Number(stats.veryUncomfortable.pct),
+            }}
+            maxBars={6}
+          />
+        </div>
+      )}
     </>
   );
 };

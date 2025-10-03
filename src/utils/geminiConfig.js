@@ -14,10 +14,12 @@ export async function transcribeAudio(audioBlob) {
     // 将 Blob 转换为 base64
     const base64Audio = await blobToBase64(audioBlob);
     
-    // 使用 Gemini 2.0 Flash 模型（支持音频）
+    // 使用之前的实验模型（你项目原本使用的）
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-    const prompt = `Please transcribe the following audio to text. Only return the transcribed text, nothing else. If it's a location or place name, return it in a format suitable for map search.`;
+    const prompt = `The audio is in English. Transcribe it verbatim in English.
+Do not translate, do not summarize, and do not add any extra words or punctuation beyond what is spoken.
+Return only the raw transcript text.`;
 
     const result = await model.generateContent([
       prompt,

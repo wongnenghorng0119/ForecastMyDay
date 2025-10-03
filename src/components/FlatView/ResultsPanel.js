@@ -93,6 +93,7 @@ const ResultsPanel = ({
               Data source: NASA POWER (temporal=daily, point)
             </span>
           </div>
+
         </>
       ) : (
         <div>Select a date in the bottom left and click "Calculate Probability".</div>
