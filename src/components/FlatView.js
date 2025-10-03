@@ -10,7 +10,7 @@ import ProbabilityInsights from "./ProbabilityInsights";
 import { fetchPowerDailyRange, computeProbabilities, buildCSV } from "../utils/nasaPowerApi";
 import { searchPlace } from "../utils/geocoding";
 
-// Fix default Marker icon
+// Fix default Marker icon aaa
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png";
@@ -110,7 +110,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
     setSelectedArea({ name, type, lat, lng });
   };
 
-  // Allow parent component to trigger search
+  // Allow parent component to trigger searchsss
   useEffect(() => {
     setSearchHandler?.(handleSearchPlace);
     return () => setSearchHandler?.(null);
