@@ -33,15 +33,19 @@ const Starfield = () => {
     // Create shooting stars
     const shootingStars = [];
     const createShootingStar = () => {
-      if (Math.random() < 0.003) { // 0.3% chance per frame
-        shootingStars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height * 0.5, // Top half of screen
-          length: Math.random() * 80 + 40,
-          speed: Math.random() * 8 + 6,
-          angle: Math.random() * Math.PI / 4 + Math.PI / 6, // 30-75 degrees
-          opacity: 1,
-        });
+      if (Math.random() < 0.030) { // 1.5% chance per frame
+        // Create 1-3 shooting stars at once
+        const count = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < count; i++) {
+          shootingStars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height * 0.5, // Top half of screen
+            length: Math.random() * 80 + 40,
+            speed: Math.random() * 8 + 6,
+            angle: Math.random() * Math.PI / 4 + Math.PI / 6, // 30-75 degrees
+            opacity: 1,
+          });
+        }
       }
     };
 
