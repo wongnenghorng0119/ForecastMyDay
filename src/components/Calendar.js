@@ -18,13 +18,11 @@ const Calendar = ({
   useEffect(() => {
     if (!initialStartDate) {
       const today = new Date();
-      // Set to a date in the past (e.g., 30 days ago)
       const startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
       setSelectedStartDate(startDate);
     }
     if (!initialEndDate) {
       const today = new Date();
-      // Set to a date in the past (e.g., 27 days ago, 3 days before start)
       const endDate = new Date(today.getTime() - 27 * 24 * 60 * 60 * 1000);
       setSelectedEndDate(endDate);
     }
@@ -33,7 +31,6 @@ const Calendar = ({
   // Notify parent component when date range changes
   useEffect(() => {
     if (selectedStartDate && selectedEndDate) {
-      // Calculate the middle date of the range
       const timeDiff = selectedEndDate.getTime() - selectedStartDate.getTime();
       const middleTime = selectedStartDate.getTime() + (timeDiff / 2);
       const middleDate = new Date(middleTime);
@@ -41,15 +38,14 @@ const Calendar = ({
       const targetMonth = middleDate.getMonth() + 1;
       const targetDay = middleDate.getDate();
       
-      // Calculate window days as half the total range (for ±windowDays)
       const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
       const windowDays = Math.floor(totalDays / 2);
       
       onDateRangeChange({
         startMonth: targetMonth,
         startDay: targetDay,
-        endMonth: targetMonth, // Same month as target
-        endDay: targetDay,     // Same day as target
+        endMonth: targetMonth,
+        endDay: targetDay,
         windowDays,
         startDate: selectedStartDate,
         endDate: selectedEndDate
@@ -86,12 +82,10 @@ const Calendar = ({
     if (isDateDisabled(date)) return;
 
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-      // Start new selection
       setSelectedStartDate(date);
       setSelectedEndDate(null);
       setIsSelecting(true);
     } else if (selectedStartDate && !selectedEndDate) {
-      // Complete selection
       if (date >= selectedStartDate) {
         setSelectedEndDate(date);
         setIsSelecting(false);
@@ -116,8 +110,14 @@ const Calendar = ({
     });
   };
 
-  const goToToday = () => {
-    setCurrentMonth(new Date());
+  const handleMonthChange = (e) => {
+    const newMonth = parseInt(e.target.value);
+    setCurrentMonth(prev => new Date(prev.getFullYear(), newMonth, 1));
+  };
+
+  const handleYearChange = (e) => {
+    const newYear = parseInt(e.target.value);
+    setCurrentMonth(prev => new Date(newYear, prev.getMonth(), 1));
   };
 
   const renderCalendar = () => {
@@ -125,12 +125,10 @@ const Calendar = ({
     const firstDay = getFirstDayOfMonth(currentMonth);
     const days = [];
 
-    // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="calendar-day empty" />);
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
       const isDisabled = isDateDisabled(date);
@@ -161,11 +159,13 @@ const Calendar = ({
     
     const startStr = selectedStartDate.toLocaleDateString('en-US', { 
       month: 'short', 
-      day: 'numeric' 
+      day: 'numeric',
+      year: 'numeric'
     });
     const endStr = selectedEndDate.toLocaleDateString('en-US', { 
       month: 'short', 
-      day: 'numeric' 
+      day: 'numeric',
+      year: 'numeric'
     });
     
     return `${startStr} - ${endStr}`;
@@ -178,24 +178,54 @@ const Calendar = ({
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  // Generate year options (current year + 10 years into the future)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear + i);
+
   return (
     <div className="calendar-container">
-      {/* Calendar Header */}
+      {/* Calendar Header with Dropdowns */}
       <div className="calendar-header">
         <button 
           onClick={() => navigateMonth(-1)}
           className="nav-button"
-          disabled={isDateDisabled(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+          aria-label="Previous month"
         >
           ‹
         </button>
-        <div className="month-year">
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        
+        <div className="month-year-selectors">
+          <select 
+            value={currentMonth.getMonth()} 
+            onChange={handleMonthChange}
+            className="month-selector"
+            aria-label="Select month"
+          >
+            {monthNames.map((month, index) => (
+              <option key={index} value={index}>
+                {month}
+              </option>
+            ))}
+          </select>
+          
+          <select 
+            value={currentMonth.getFullYear()} 
+            onChange={handleYearChange}
+            className="year-selector"
+            aria-label="Select year"
+          >
+            {years.map(year => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
         </div>
+        
         <button 
           onClick={() => navigateMonth(1)}
           className="nav-button"
-          disabled={isDateDisabled(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+          aria-label="Next month"
         >
           ›
         </button>
