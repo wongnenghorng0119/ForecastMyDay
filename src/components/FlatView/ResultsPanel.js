@@ -31,11 +31,11 @@ const ResultsPanel = ({
       meta,
     });
     return [
-      mk("veryHot", "Very Hot", stats.veryHot, "T ≥ 32°C"),
-      mk("veryCold", "Very Cold", stats.veryCold, "T ≤ 0°C"),
-      mk("veryWindy", "Very Windy", stats.veryWindy, "WS ≥ 10 m/s"),
-      mk("veryWet", "Very Wet", stats.veryWet, "Precip ≥ 10 mm"),
-      mk("veryUncomfortable", "Very Uncomfortable", stats.veryUncomfortable, "T ≥ 32°C & RH ≥ 60%"),
+      mk("veryHot", "Very Hot", stats?.veryHot, "T ≥ 32°C"),
+      mk("veryCold", "Very Cold", stats?.veryCold, "T ≤ 0°C"),
+      mk("veryWindy", "Very Windy", stats?.veryWindy, "WS ≥ 10 m/s"),
+      mk("veryWet", "Very Wet", stats?.veryWet, "Precip ≥ 10 mm"),
+      mk("veryUncomfortable", "Very Uncomfortable", stats?.veryUncomfortable, "T ≥ 32°C & RH ≥ 60%"),
     ];
   }, [stats]);
 
@@ -318,6 +318,7 @@ const ResultsPanel = ({
           ☁
         </button>
       )}
+
 
 {/* Probability Insights Modal */}
 {showInsights && createPortal(
@@ -823,6 +824,35 @@ const ResultsPanel = ({
         </div>,
         document.body
       )}
+
+
+      <div
+        className="insight-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Graph & Analysis"
+        style={{ display: showInsights ? undefined : "none" }}
+      >
+        <div className="insight-modal__backdrop" onClick={closeInsights} />
+        <div className="insight-modal__panel" onClick={(e) => e.stopPropagation()}>
+          <div className="insight-modal__hdr">
+            <div className="insight-modal__title">{titleText}</div>
+            <button className="icon-btn modal-close" onClick={closeInsights} aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <div className="insight-modal__body">
+            <ProbabilityInsights
+              data={insightsData}
+              title="Probability Insights"
+              visible={showInsights}         // 控制渲染与请求
+              autoAnalyze={true}             // 可一直 true；有缓存则不请求
+              maxBars={8}
+            />
+          </div>
+        </div>
+      </div>
+
     </>
   );
 };

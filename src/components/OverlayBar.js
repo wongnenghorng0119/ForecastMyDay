@@ -127,7 +127,7 @@ const OverlayBar = ({ mode, onSearch, query, setQuery, setMode, onVoiceSearch })
 
               <input
                 type="search"
-                placeholder="Search location (e.g., malaysia sibu)"
+                placeholder="Search location"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
