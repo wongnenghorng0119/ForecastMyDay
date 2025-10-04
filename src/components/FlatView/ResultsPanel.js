@@ -322,44 +322,68 @@ const ResultsPanel = ({
 
 {/* Probability Insights Modal */}
 {showInsights && createPortal(
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      zIndex: 2147483646,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      animation: "fadeIn 0.2s ease",
-    }}
-  >
-    {/* 背景遮罩 */}
-    <div
-      onClick={closeInsights}
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: "rgba(0, 0, 0, 0.8)",
-        backdropFilter: "blur(8px)",
-      }}
-    />
+  <>
+    <style>
+      {`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
 
-    {/* 内容卡片 */}
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}
+    </style>
     <div
       style={{
-        position: "relative",
-        background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-        borderRadius: 20,
-        padding: 32,
-        maxWidth: 800,
-        width: "90%",
-        maxHeight: "85vh",
-        overflow: "auto",
-        boxShadow: "0 25px 80px rgba(0, 0, 0, 0.6)",
-        border: "2px solid rgba(102, 126, 234, 0.3)",
-        animation: "scaleIn 0.3s ease",
+        position: "fixed",
+        inset: 0,
+        zIndex: 2147483646,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        animation: "fadeIn 0.2s ease",
       }}
     >
+      {/* 背景遮罩 */}
+      <div
+        onClick={closeInsights}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0, 0, 0, 0.8)",
+          backdropFilter: "blur(8px)",
+        }}
+      />
+
+      {/* 内容卡片 */}
+      <div
+        style={{
+          position: "relative",
+          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+          borderRadius: 20,
+          padding: 32,
+          maxWidth: 800,
+          width: "90%",
+          maxHeight: "85vh",
+          overflow: "auto",
+          boxShadow: "0 25px 80px rgba(0, 0, 0, 0.6)",
+          border: "2px solid rgba(102, 126, 234, 0.3)",
+          animation: "scaleIn 0.3s ease",
+        }}
+      >
       {/* 关闭按钮 */}
       <button
         onClick={closeInsights}
@@ -415,7 +439,8 @@ const ResultsPanel = ({
         maxBars={6}
       />
     </div>
-  </div>,
+  </div>
+  </>,
   document.body
 )}
 
@@ -627,42 +652,66 @@ const ResultsPanel = ({
       )}
             {/* CSV Download Modal */}
             {showCSVModal && createPortal(
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 2147483648,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            animation: "fadeIn 0.2s ease",
-          }}
-        >
-          {/* 背景遮罩 */}
-          <div
-            onClick={() => setShowCSVModal(false)}
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0, 0, 0, 0.8)",
-              backdropFilter: "blur(8px)",
-            }}
-          />
+        <>
+          <style>
+            {`
+              @keyframes fadeIn {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
 
-          {/* Modal 卡片 */}
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `}
+          </style>
           <div
             style={{
-              position: "relative",
-              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-              borderRadius: 20,
-              padding: 40,
-              maxWidth: 500,
-              width: "90%",
-              boxShadow: "0 25px 80px rgba(0, 0, 0, 0.6)",
-              border: "2px solid rgba(102, 126, 234, 0.3)",
-              animation: "scaleIn 0.3s ease",
+              position: "fixed",
+              inset: 0,
+              zIndex: 2147483648,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              animation: "fadeIn 0.2s ease",
             }}
           >
+            {/* 背景遮罩 */}
+            <div
+              onClick={() => setShowCSVModal(false)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.8)",
+                backdropFilter: "blur(8px)",
+              }}
+            />
+
+            {/* Modal 卡片 */}
+            <div
+              style={{
+                position: "relative",
+                background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+                borderRadius: 20,
+                padding: 40,
+                maxWidth: 500,
+                width: "90%",
+                boxShadow: "0 25px 80px rgba(0, 0, 0, 0.6)",
+                border: "2px solid rgba(102, 126, 234, 0.3)",
+                animation: "scaleIn 0.3s ease",
+              }}
+            >
             {/* 关闭按钮 */}
             <button
               onClick={() => setShowCSVModal(false)}
@@ -821,7 +870,8 @@ const ResultsPanel = ({
               </button>
             </div>
           </div>
-        </div>,
+        </div>
+        </>,
         document.body
       )}
 
