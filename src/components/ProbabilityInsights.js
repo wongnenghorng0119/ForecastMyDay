@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import { genAI } from "../utils/geminiConfig";
 import "./css/ProbabilityInsights.css";
 
@@ -9,7 +9,7 @@ import "./css/ProbabilityInsights.css";
  * - autoAnalyze?: boolean (default: true)
  * - maxBars?: number
  * - onAdvice?: (result: { summary: string, advice: string }) => void
- * - visible?: boolean (default: false)  // 只在 true 时显示并分析
+ * - visible?: boolean (default: false)
  */
 export default function ProbabilityInsights({
   data,
@@ -19,20 +19,40 @@ export default function ProbabilityInsights({
   onAdvice,
   visible = false,
 }) {
-  // === Hooks：无条件调用，避免“conditionally called” ===
+  // -------- State（无条件调用 Hooks，避免 ESLint 报错） --------
   const [summary, setSummary] = useState("");
   const [advice, setAdvice] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 归一化
+  // -------- 结果缓存（按数据签名存取） --------
+  // Map<signature, {summary, advice}>
+  const cacheRef = useRef(new Map());
+
+  // 生成稳定签名：标签+数值（四舍五入到 3 位，避免细微浮动导致误判）
+  const signature = useMemo(() => {
+    if (!data) return "nil";
+    const arr = Array.isArray(data)
+      ? data
+          .filter(Boolean)
+          .map((x) => ({ label: String(x.label), value: Number(x.value) || 0 }))
+      : Object.entries(data).map(([label, value]) => ({
+          label: String(label),
+          value: Number(value) || 0,
+        }));
+    const norm = [...arr]
+      .sort((a, b) => (a.label > b.label ? 1 : -1))
+      .map(({ label, value }) => [label, Math.round(Number(value) * 1000) / 1000]);
+    return JSON.stringify(norm);
+  }, [data]);
+
+  // -------- 数据整理 --------
   const series = useMemo(() => {
     if (!data) return [];
-    if (Array.isArray(data)) {
+    if (Array.isArray(data))
       return data
         .filter(Boolean)
         .map((x) => ({ label: String(x.label), value: Number(x.value) || 0 }));
-    }
     return Object.entries(data).map(([label, value]) => ({
       label: String(label),
       value: Number(value) || 0,
@@ -49,11 +69,23 @@ export default function ProbabilityInsights({
     [trimmed]
   );
 
-  // 只在可见且允许分析时调用 Gemini
+  // -------- 请求 Gemini（仅在可见 + 允许分析 + 没缓存 时）--------
   useEffect(() => {
     let cancelled = false;
+
     async function run() {
       if (!visible || !autoAnalyze || trimmed.length === 0) return;
+
+      // 命中缓存：直接回填，绝不发请求
+      const cached = cacheRef.current.get(signature);
+      if (cached) {
+        setLoading(false);
+        setError("");
+        setSummary(cached.summary);
+        setAdvice(cached.advice);
+        return;
+      }
+
       setLoading(true);
       setError("");
       try {
@@ -64,7 +96,7 @@ export default function ProbabilityInsights({
             "Return concise English: first a 2-4 sentence summary, then a short bullet list of actionable suggestions.",
           data: trimmed,
           notes:
-            "Numbers represent probabilities in [0,1] or percentages. If values > 1 assume percentages.",
+            "Numbers represent probabilities in [0,1] or percentages. If values > 1 assume percentages. Be precise and avoid hallucinations.",
         };
         const prompt =
           `You are given a small probability result set as JSON.\n` +
@@ -80,18 +112,30 @@ export default function ProbabilityInsights({
         const txt = (response.text() || "").trim();
         if (cancelled) return;
 
+        let s = "", adv = "";
         const parts = txt.split(/\n\s*Advice\s*:?/i);
         if (parts.length > 1) {
-          const s = parts[0].replace(/Summary\s*:?/i, "").trim();
-          const adv = parts.slice(1).join("\n").trim();
-          setSummary(s);
-          setAdvice(adv);
-          onAdvice && onAdvice({ summary: s, advice: adv });
+          s = parts[0].replace(/Summary\s*:?/i, "").trim();
+          adv = parts.slice(1).join("\n").trim();
         } else {
-          setSummary(txt);
-          setAdvice("");
-          onAdvice && onAdvice({ summary: txt, advice: "" });
+          s = txt;
+          adv = "";
         }
+
+        setSummary(s);
+        setAdvice(adv);
+
+        // 写入缓存，限制最多 10 条，简单淘汰最旧
+        const map = cacheRef.current;
+        if (!map.has(signature)) {
+          if (map.size >= 10) {
+            const firstKey = map.keys().next().value;
+            map.delete(firstKey);
+          }
+          map.set(signature, { summary: s, advice: adv });
+        }
+
+        onAdvice && onAdvice({ summary: s, advice: adv });
       } catch (e) {
         if (cancelled) return;
         setError(e?.message || "Failed to analyze with Gemini");
@@ -99,13 +143,14 @@ export default function ProbabilityInsights({
         if (!cancelled) setLoading(false);
       }
     }
+
     run();
     return () => {
       cancelled = true;
     };
-  }, [visible, autoAnalyze, trimmed, onAdvice]);
+  }, [visible, autoAnalyze, trimmed, signature, onAdvice]);
 
-  // 图表尺寸（SSR 兜底）
+  // -------- 图表尺寸（SSR 兜底）--------
   const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
   const isMobile = vw <= 480;
   const isTablet = vw <= 768;
@@ -143,7 +188,7 @@ export default function ProbabilityInsights({
   const svgFontSize = isMobile ? 8 : 10;
   const formatValue = (v) => (v > 1.0001 ? `${v.toFixed(1)}%` : `${(v * 100).toFixed(1)}%`);
 
-  // === 渲染控制：到这里才根据 visible 决定是否显示 ===
+  // 只在可见时渲染
   if (!visible) return null;
 
   return (
@@ -161,6 +206,7 @@ export default function ProbabilityInsights({
             className="pi-chart-svg"
           >
             <g transform={`translate(${margin.left},${margin.top})`}>
+              {/* Y grid + ticks */}
               {[0, 0.25, 0.5, 0.75, 1].map((t, i) => {
                 const val = t * maxValue;
                 const y = chartH - (val / maxValue) * chartH;
@@ -180,6 +226,7 @@ export default function ProbabilityInsights({
                 );
               })}
 
+              {/* Bars */}
               {trimmed.map((d, i) => {
                 const v = d.value;
                 const scaled = v / (maxValue || 1);
