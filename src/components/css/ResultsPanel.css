@@ -141,11 +141,43 @@
 
 /* CSV 按钮（第一项目风格） */
 .csv-btn.mini{
-  height: 34px; padding: 0 10px; border-radius: 10px; text-align: center;
-  background: var(--glass); border: 1px solid var(--border); color: var(--fg);
+  height: 34px; 
+  padding: 0 10px; 
+  border-radius: 10px; 
+  text-align: center;
+  border: 1px solid rgba(212,175,55,.7);
+  background: linear-gradient(135deg, rgba(212,175,55,.55), rgba(212,175,55,.38)); 
+  color: #fff;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(212,175,55,.25);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
-.csv-btn.mini:hover{ transform: translateY(-1px); }
+.csv-btn.mini::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  transition: left 0.5s;
+}
+.csv-btn.mini:hover{ 
+  transform: translateY(-2px); 
+  border-color: rgba(212,175,55,.9);
+  background: linear-gradient(135deg, rgba(212,175,55,.65), rgba(212,175,55,.48));
+  box-shadow: 0 6px 20px rgba(212,175,55,.4), 0 0 30px rgba(212,175,55,.2);
+}
+.csv-btn.mini:hover::before {
+  left: 100%;
+}
+.csv-btn.mini:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 8px rgba(212,175,55,.3);
+}
 
 /* 收起时右侧的云朵“小标签” */
 .insight-tab.mini.right{

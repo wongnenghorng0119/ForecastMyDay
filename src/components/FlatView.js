@@ -58,11 +58,15 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
       URL.revokeObjectURL(csvURL);
       setCsvURL(null);
     }
-
+ 
     // Update state with the new values
     setMonth(m);
     setDay(d);
     setWindowDays(w);
+
+    // Store start time to ensure minimum loading duration
+    const startTime = Date.now();
+    const minLoadingTime = 2000; // Minimum 800ms loading time
 
     try {
       const rows = await fetchPowerDailyRange(lat, lng, ac.signal);
@@ -70,6 +74,12 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
       setStats(s);
       const url = buildCSV({ name: selectedArea?.name, lat, lng }, m, d, w, s);
       setCsvURL(url);
+      
+      // Ensure minimum loading time has passed
+      const elapsedTime = Date.now() - startTime;
+      if (elapsedTime < minLoadingTime) {
+        await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsedTime));
+      }
     } catch (e) {
       setStatsErr(e.message || "统计失败");
     } finally {
@@ -169,54 +179,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
         csvURL={csvURL}
       />
 
-      {stats && (
-        <div
-          style={{
-            position: "absolute",
-            right: 12,
-            top: 12,
-            zIndex: 2147483647,
-            minWidth: 340,
-            maxWidth: 560,
-            padding: 12,
-            borderRadius: 10,
-            background: "rgba(0,0,0,0.55)",
-            color: "#fff",
-            fontFamily: "system-ui",
-            backdropFilter: "blur(6px)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            // Mobile responsive
-            [`@media (max-width: 768px)`]: {
-              right: 8,
-              top: 8,
-              minWidth: 280,
-              maxWidth: "calc(100vw - 16px)",
-              padding: 10
-            },
-            [`@media (max-width: 480px)`]: {
-              right: 4,
-              top: 4,
-              minWidth: "calc(100vw - 8px)",
-              maxWidth: "calc(100vw - 8px)",
-              padding: 8,
-              borderRadius: 6,
-              boxSizing: "border-box"
-            }
-          }}
-        >
-          <ProbabilityInsights
-            title={`Insights${selectedArea?.name ? ` • ${selectedArea.name}` : ""}`}
-            data={{
-              "Very hot": Number(stats.veryHot.pct),
-              "Very cold": Number(stats.veryCold.pct),
-              "Very wet": Number(stats.veryWet.pct),
-              "Very windy": Number(stats.veryWindy.pct),
-              "Very uncomfortable": Number(stats.veryUncomfortable.pct),
-            }}
-            maxBars={6}
-          />
-        </div>
-      )}
+
     </>
   );
 };
