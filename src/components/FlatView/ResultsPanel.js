@@ -1,7 +1,7 @@
-// src/components/FlatView/ResultsPanel.js
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import "../css/ResultsPanel.css";
 import AnalysisLoading from "../AnalysisLoading";
+import ProbabilityInsights from "../ProbabilityInsights";
 
 const ResultsPanel = ({
   open,
@@ -15,14 +15,15 @@ const ResultsPanel = ({
   selectedArea,
   csvURL,
 }) => {
+  const [showInsights, setShowInsights] = useState(false);
+
   const cards = useMemo(() => {
     if (!stats) return [];
     const mk = (key, label, block, meta) => ({
       key,
       label,
       value: Math.round(block?.pct ?? 0),
-      severity:
-        (block?.pct ?? 0) >= 60 ? "high" : (block?.pct ?? 0) >= 30 ? "medium" : "low",
+      severity: (block?.pct ?? 0) >= 60 ? "high" : (block?.pct ?? 0) >= 30 ? "medium" : "low",
       meta,
     });
     return [
@@ -30,31 +31,46 @@ const ResultsPanel = ({
       mk("veryCold", "Very Cold", stats.veryCold, "T ≤ 0°C"),
       mk("veryWindy", "Very Windy", stats.veryWindy, "WS ≥ 10 m/s"),
       mk("veryWet", "Very Wet", stats.veryWet, "Precip ≥ 10 mm"),
-      mk(
-        "veryUncomfortable",
-        "Very Uncomfortable",
-        stats.veryUncomfortable,
-        "T ≥ 32°C & RH ≥ 60%"
-      ),
+      mk("veryUncomfortable", "Very Uncomfortable", stats.veryUncomfortable, "T ≥ 32°C & RH ≥ 60%"),
+    ];
+  }, [stats]);
+
+  const insightsData = useMemo(() => {
+    if (!stats) return [];
+    return [
+      { label: "Very Hot", value: Number(stats?.veryHot?.pct ?? 0) },
+      { label: "Very Cold", value: Number(stats?.veryCold?.pct ?? 0) },
+      { label: "Very Windy", value: Number(stats?.veryWindy?.pct ?? 0) },
+      { label: "Very Wet", value: Number(stats?.veryWet?.pct ?? 0) },
+      { label: "Very Uncomfortable", value: Number(stats?.veryUncomfortable?.pct ?? 0) },
     ];
   }, [stats]);
 
   const shortName = (key, fallback) =>
-    ({
-      veryHot: "very hot",
-      veryCold: "very cold",
-      veryWindy: "very windy",
-      veryWet: "very wet",
-      veryUncomfortable: "very uncomfortable",
-    }[key] || (fallback || "").toLowerCase().replace(/\s+/g, ""));
+    (
+      {
+        veryHot: "very hot",
+        veryCold: "very cold",
+        veryWindy: "very windy",
+        veryWet: "very wet",
+        veryUncomfortable: "very uncomfortable",
+      }[key] || (fallback || "").toLowerCase().replace(/\s+/g, "")
+    );
+
+  const titleText = useMemo(() => {
+    const loc = selectedArea
+      ? `${selectedArea.name ?? "Location"} (${selectedArea.lat?.toFixed(3)}, ${selectedArea.lng?.toFixed(3)})`
+      : "No location selected";
+    return `Graph & Analysis — ${loc} • ${month}/${day} ± ${windowDays}d`;
+  }, [selectedArea, month, day, windowDays]);
+
+  const closeInsights = useCallback(() => setShowInsights(false), []);
 
   return (
     <>
-      {/* 你的全屏 Loading（会盖全页面） */}
       <AnalysisLoading show={!!loadingStats} />
 
       <aside className={`insight-panel mini right ${open ? "" : "is-collapsed"}`}>
-        {/* 顶部云朵（展开/收起） */}
         <div className="insight-hdr">
           <button
             className="icon-btn insight-toggle"
@@ -64,14 +80,23 @@ const ResultsPanel = ({
           >
             ☁
           </button>
+
+          {/* 唯一入口：📈 */}
+          <button
+            className="icon-btn graph-toggle"
+            type="button"
+            onClick={() => setShowInsights(true)}
+            aria-label="Open Probability Insights"
+            title="Open Probability Insights"
+          >
+            📈
+          </button>
         </div>
 
-        {/* 内容 */}
         {statsErr ? (
           <div className="insight-error">Error: {statsErr}</div>
         ) : stats ? (
           <>
-            {/* KPI 列表 */}
             <div className="kpi-list mini">
               {cards.map((c) => (
                 <div key={c.key} className={`kpi kpi-row mini ${c.severity}`}>
@@ -86,7 +111,6 @@ const ResultsPanel = ({
               ))}
             </div>
 
-            {/* 脚注 */}
             <div className="footnote footnote-left mini">
               <div className="line1 justify">
                 Sample: {stats.sampleCount} days ({month}/{day} ± {windowDays} days, 1995—present, daily values)
@@ -125,6 +149,30 @@ const ResultsPanel = ({
         >
           ☁
         </button>
+      )}
+
+      {/* 中央弹层：只有 showInsights 时挂载 & 传 visible */}
+      {showInsights && (
+        <div className="insight-modal" role="dialog" aria-modal="true" aria-label="Graph & Analysis">
+          <div className="insight-modal__backdrop" onClick={closeInsights} />
+          <div className="insight-modal__panel" onClick={(e) => e.stopPropagation()}>
+            <div className="insight-modal__hdr">
+              <div className="insight-modal__title">{titleText}</div>
+              <button className="icon-btn modal-close" onClick={closeInsights} aria-label="Close">
+                ✕
+              </button>
+            </div>
+            <div className="insight-modal__body">
+              <ProbabilityInsights
+                data={insightsData}
+                title="Probability Insights"
+                visible={showInsights}     // ☆ 只有打开时才显示
+                autoAnalyze={showInsights} // ☆ 只有打开时才请求 Gemini
+                maxBars={8}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
