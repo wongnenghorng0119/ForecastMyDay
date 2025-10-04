@@ -29,13 +29,47 @@
 .insight-panel.right{ right: 12px; left: auto; }
 .insight-panel.is-collapsed{ transform: translateX(calc(100% + 10px)); opacity: .95; pointer-events: none; }
 
-.insight-hdr{ display:flex; justify-content:flex-start; }
-.insight-toggle{
+/* Header：云朵 + 📈（唯一入口） */
+.insight-hdr{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 云朵切换按钮 */
+.icon-btn.insight-toggle{
   width: 28px; height: 28px; border-radius: 999px;
   background: var(--glass); border: 1px solid var(--border); color: var(--fg);
   display: grid; place-items: center; cursor: pointer;
+  transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
-.insight-toggle:hover{ transform: translateY(-1px); }
+.icon-btn.insight-toggle:hover{
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--border) 70%, var(--accent) 30%);
+  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+}
+.icon-btn.insight-toggle:focus-visible{
+  outline: 2px solid color-mix(in oklab, var(--accent) 70%, #fff 30%);
+  outline-offset: 2px;
+}
+
+/* 📈 唯一入口按钮（图标款） */
+.icon-btn.graph-toggle{
+  width: 28px; height: 28px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--border); color: var(--fg);
+  display: grid; place-items: center; cursor: pointer;
+  transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.icon-btn.graph-toggle:hover{
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--border) 60%, var(--accent) 40%);
+  box-shadow: 0 8px 20px rgba(0,0,0,.35), 0 0 22px rgba(212,175,55,.18) inset;
+}
+.icon-btn.graph-toggle:active{ transform: translateY(1px); }
+.icon-btn.graph-toggle:focus-visible{
+  outline: 2px solid color-mix(in oklab, var(--accent) 70%, #fff 30%);
+  outline-offset: 2px;
+}
 
 /* KPI 列表（两列：圆环 + 文本） */
 .kpi-list.mini{ display: grid; gap: 8px; }
@@ -46,13 +80,13 @@
   border: 1px solid var(--border);
 }
 
-/* ===== 修复：把 mask 放到伪元素上，百分比文字显示在最上层 ===== */
+/* 圆环仪表 */
 .kpi-row.mini .gauge{
   --gcolor: var(--accent);
   --p: 0;
   position: relative;
   width: 40px; height: 40px; border-radius: 50%;
-  background: transparent;           /* 圆环画在伪元素上 */
+  background: transparent;
   display: grid; place-items: center;
 }
 /* 底轨 */
@@ -73,7 +107,7 @@
   box-shadow: 0 0 22px rgba(212,175,55,.20);
   z-index: 1; pointer-events:none;
 }
-/* 中央百分比文本（不再被 mask） */
+/* 中央百分比文本 */
 .kpi-row.mini .gauge .gauge-val{
   position:absolute; inset:0;
   display:grid; place-items:center;
@@ -86,17 +120,17 @@
 .kpi.medium .gauge{ --gcolor: #f59e0b; }
 .kpi.low .gauge{ --gcolor: #60a5fa; }
 
-/* 旁边文案：只显示 veryhot 等短标签；meta 白色，和上面留一点距离 */
+/* KPI 文案 */
 .kpi-text.mini .lab-short{
   font-size:12px; font-weight:800; color:rgba(255,255,255,.92);
   line-height:1.05;
 }
 .kpi-text.mini .meta{
   font-size: 11px; line-height:1.05; color:#fff; opacity:1;
-  margin-top: 2px;           /* 与上面留一点距离 */
+  margin-top: 2px;
 }
 
-/* 脚注：两行 justify */
+/* 脚注 */
 .footnote-left.mini{ font-size: 11px; color: var(--muted); }
 .footnote-left.mini .justify{
   text-align: left; text-justify: inter-word;
@@ -113,7 +147,7 @@
 }
 .csv-btn.mini:hover{ transform: translateY(-1px); }
 
-/* 收起时右侧的云朵“小标签”：黑色不透明背景，和底部一致 */
+/* 收起时右侧的云朵“小标签” */
 .insight-tab.mini.right{
   position: fixed; right: 6px; top: calc(var(--hdr-h) + 12px);
   z-index: 3; width: 30px; height: 30px; border-radius: 999px;
@@ -132,3 +166,105 @@
 @keyframes spin{ to{ transform:rotate(360deg); } }
 .insight-error{ font-size:12px; color:#ff6b6b; }
 .insight-hint{ font-size:12px; opacity:.9; text-align: center; color: whitesmoke;}
+
+/* ===== 中央弹层 ===== */
+.insight-modal{
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  display: grid;
+  place-items: center;
+}
+.insight-modal__backdrop{
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, #000 70%, transparent);
+  backdrop-filter: blur(2px);
+}
+.insight-modal__panel{
+  position: relative;
+  width: min(960px, calc(100vw - 40px));
+  max-height: min(82vh, 860px);
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--border) 80%, transparent),
+    0 20px 60px color-mix(in oklab, #000 75%, transparent);
+  backdrop-filter: blur(var(--blur));
+  display: grid;
+  grid-template-rows: auto 1fr;
+  animation: modal-pop .18s ease-out;
+}
+@keyframes modal-pop{
+  from{ transform: translateY(8px) scale(.98); opacity: 0; }
+  to{ transform: translateY(0) scale(1); opacity: 1; }
+}
+.insight-modal__hdr{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--glass) 90%, transparent),
+      color-mix(in oklab, var(--glass) 60%, transparent)
+    );
+}
+.insight-modal__title{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.icon-btn.modal-close{
+  height: 32px;
+  width: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--glass);
+  color: var(--fg);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .12s ease;
+}
+.icon-btn.modal-close:hover{
+  background: color-mix(in oklab, var(--glass) 75%, var(--accent) 25%);
+  border-color: color-mix(in oklab, var(--border) 70%, var(--accent) 30%);
+}
+.icon-btn.modal-close:active{ transform: translateY(1px); }
+
+.insight-modal__body{
+  padding: 12px;
+  overflow: auto;
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--solid-1) 80%, transparent),
+      color-mix(in oklab, var(--solid-2) 65%, transparent)
+    );
+}
+
+/* 小屏适配 */
+@media (max-width: 480px){
+  .insight-modal__panel{
+    width: calc(100vw - 20px);
+    max-height: 86vh;
+    border-radius: 14px;
+  }
+  .insight-modal__hdr{
+    padding: 10px 12px;
+  }
+  .insight-modal__title{
+    font-size: 12px;
+  }
+}
+
+

@@ -7,7 +7,7 @@ const API_KEY = "AIzaSyBLw7XaVcGUNYJusxfpedU9YhUNJZQ7Rtg";
 export const genAI = new GoogleGenerativeAI(API_KEY);
 
 /**
- * 将音频文件转换为文字
+ * 将音频文件转换为文字，并提取地点名称
  */
 export async function transcribeAudio(audioBlob) {
   try {
@@ -17,9 +17,18 @@ export async function transcribeAudio(audioBlob) {
     // 使用之前的实验模型（你项目原本使用的）
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-    const prompt = `The audio is in English. Transcribe it verbatim in English.
-Do not translate, do not summarize, and do not add any extra words or punctuation beyond what is spoken.
-Return only the raw transcript text.`;
+    const prompt = `Listen to this audio and extract ONLY the location/place name mentioned.
+
+Rules:
+- If the user mentions a city, country, or place name, return ONLY that location name
+- Examples:
+  * "I want to go to Paris" → return "Paris"
+  * "What's the weather like in Tokyo Japan" → return "Tokyo Japan"
+  * "Tell me about New York City" → return "New York City"
+  * "I'm planning a trip to Kuala Lumpur Malaysia" → return "Kuala Lumpur Malaysia"
+- Return ONLY the location name, nothing else
+- If no location is mentioned, return the full transcript
+- Do not add punctuation or extra words`;
 
     const result = await model.generateContent([
       prompt,

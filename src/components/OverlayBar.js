@@ -46,7 +46,7 @@ function ModeSwitch({ mode, setMode }) {
 }
 
 /** —— OverlayBar —— */
-const OverlayBar = ({ mode, onSearch, query, setQuery, setMode }) => {
+const OverlayBar = ({ mode, onSearch, query, setQuery, setMode, onVoiceSearch }) => {
   const [absorbing, setAbsorbing] = useState(false);
   const spinTimerRef = useRef(0);
 
@@ -72,8 +72,11 @@ const OverlayBar = ({ mode, onSearch, query, setQuery, setMode }) => {
 
   const handleVoiceTranscript = (transcript) => {
     const t = (transcript || "").trim();
-    setQuery(t);
-    if (t) doSearch(t);
+    if (t) {
+      triggerBHSpin();
+      // 使用 onVoiceSearch 触发过渡动画
+      onVoiceSearch?.(t);
+    }
   };
 
   useEffect(() => () => clearTimeout(spinTimerRef.current), []);
