@@ -1,7 +1,7 @@
 // src/utils/geminiConfig.js
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 直接硬编码 API Key
+// 直接硬编码 API Key1
 const API_KEY = "AIzaSyBLw7XaVcGUNYJusxfpedU9YhUNJZQ7Rtg";
 
 export const genAI = new GoogleGenerativeAI(API_KEY);
