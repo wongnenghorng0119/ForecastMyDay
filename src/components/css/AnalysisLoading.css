@@ -1,0 +1,203 @@
+/* src/components/css/AnalysisLoading.css —— 黑 + 深金主题 */
+
+/* 主题色（自动兼容外部 --accent） */
+:root{
+  --gold: var(--accent, #d4af37);         /* 深金 */
+  --gold-strong: #c39a2e;                 /* 深一档 */
+  --gold-soft: rgba(212,175,55,.55);      /* 柔金光 */
+  --gold-glow: rgba(212,175,55,.38);      /* 外发光 */
+  --gold-glow-2: rgba(212,175,55,.18);    /* 次级发光 */
+
+  --panel-1:#0a0a0a;                      /* 外壳渐变起点（黑） */
+  --panel-2:#151310;                      /* 外壳渐变终点（黑金） */
+  --screen-bg: rgba(10,10,10,.88);        /* 屏幕内层黑 */
+  --border-weak: rgba(212,175,55,.28);    /* 弱金边 */
+}
+
+.analysis-loading-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.86);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  backdrop-filter: blur(10px);
+}
+
+.analysis-tablet {
+  position: relative;
+  width: 400px;
+  height: 280px;
+  background: linear-gradient(135deg, var(--panel-1) 0%, var(--panel-2) 100%);
+  border-radius: 20px;
+  border: 2px solid var(--gold);
+  box-shadow:
+    0 0 36px var(--gold-glow),
+    0 0 80px var(--gold-glow-2),
+    inset 0 0 50px rgba(0,0,0,.35);
+  padding: 30px;
+  animation: tabletGlow 3s ease-in-out infinite;
+}
+
+@keyframes tabletGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 36px var(--gold-glow),
+      0 0 80px var(--gold-glow-2),
+      inset 0 0 50px rgba(0,0,0,.35);
+  }
+  50% {
+    box-shadow:
+      0 0 56px rgba(212,175,55,.55),
+      0 0 110px rgba(212,175,55,.26),
+      inset 0 0 70px rgba(0,0,0,.28);
+  }
+}
+
+.tablet-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--screen-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-weak);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 金色扫描高光 */
+.tablet-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,.22), transparent);
+  animation: scanLine 2s linear infinite;
+}
+
+@keyframes scanLine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.weather-icon-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 25px;
+}
+
+/* Emoji 自带颜色，使用金色投影营造深金氛围 */
+.weather-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 80px;
+  opacity: 0;
+  filter: drop-shadow(0 0 18px var(--gold-soft));
+}
+
+.weather-icon.active { animation: iconAppear 0.6s ease-out forwards; }
+.weather-icon.exiting { animation: iconDisappear 0.6s ease-in forwards; }
+
+@keyframes iconAppear {
+  0%   { transform: translate(-50%, -50%) scale(0) rotate(-180deg); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0deg);   opacity: 1; }
+}
+
+@keyframes iconDisappear {
+  0%   { transform: translate(-50%, -50%) scale(1) rotate(0deg);   opacity: 1; }
+  50%  { opacity: .5; }
+  100% { transform: translate(-50%, -50%) scale(0) rotate(180deg); opacity: 0; }
+}
+
+/* 金色打字机风格文字 */
+.analysis-text {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  text-shadow:
+    0 0 6px rgba(212,175,55,.85),
+    0 0 18px rgba(212,175,55,.35);
+  animation: textPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes textPulse {
+  0%, 100% { opacity: .75; text-shadow: 0 0 6px rgba(212,175,55,.85), 0 0 18px rgba(212,175,55,.35); }
+  50%      { opacity: 1;   text-shadow: 0 0 10px rgba(212,175,55,1),   0 0 26px rgba(212,175,55,.45); }
+}
+
+/* 进度条：黑底金流光 */
+.progress-container {
+  width: 100%;
+  max-width: 280px;
+  height: 3px;
+  background: rgba(212,175,55,.12);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 5px rgba(212,175,55,.28);
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg,
+    rgba(212,175,55,.45) 0%,
+    var(--gold) 50%,
+    rgba(212,175,55,.45) 100%);
+  width: 0%;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(212,175,55,.8);
+  animation: progressFill 3s ease-in-out infinite;
+  position: relative;
+}
+
+/* 金色高光扫过 */
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.7));
+  mix-blend-mode: screen;
+  animation: progressShine 1s ease-in-out infinite;
+}
+
+@keyframes progressFill {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes progressShine {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
+}
+
+/* 四角金属装饰 */
+.corner-decor {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.corner-decor.top-left     { top: 10px;  left: 10px;  border-right: none; border-bottom: none; }
+.corner-decor.top-right    { top: 10px;  right: 10px; border-left:  none; border-bottom: none; }
+.corner-decor.bottom-left  { bottom: 10px; left: 10px;  border-right: none; border-top:    none; }
+.corner-decor.bottom-right { bottom: 10px; right: 10px; border-left:  none; border-top:    none; }
