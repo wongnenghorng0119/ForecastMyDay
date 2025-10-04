@@ -8,7 +8,7 @@ import { LOCAL_GEOJSON } from "./utils/constants";
 import { geoCentroid, geoBounds } from "d3-geo";
 
 export default function App() {
-  const [mode, setMode] = useState("globe"); // 'globe' | 'flat' | 'loading'
+  const [mode, setMode] = useState("globe"); // 'globe' | 'flat' | 'loading'！
   const [features, setFeatures] = useState([]);
   const [selectedName, setSelectedName] = useState(null); // 3D
   const [selectedArea, setSelectedArea] = useState(null); // 2D {name, type, lat, lng}
