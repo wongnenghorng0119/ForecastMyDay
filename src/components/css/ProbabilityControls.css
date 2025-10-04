@@ -49,7 +49,7 @@
   color:rgba(255,255,255,.86);
 }
 .chip .chip-val{ margin-left:4px; font-weight:800; color:var(--fg); }
-.chip-location .pin-icon{ margin-right:2px; }
+.chip-location .pin-icon{ margin-right:2px; }       
 
 /* 日期一行 */
 .date-row{ display:flex; justify-content:center; }
@@ -92,9 +92,7 @@
   background: linear-gradient(135deg, rgba(212,175,55,.65), rgba(212,175,55,.48));
   box-shadow: 0 6px 20px rgba(212,175,55,.4), 0 0 30px rgba(212,175,55,.2);
 }
-.primary:hover::before {
-  left: 100%;
-}
+.primary:hover::before { left: 100%; }
 .primary:active {
   transform: translateY(0px);
   box-shadow: 0 2px 8px rgba(212,175,55,.3);

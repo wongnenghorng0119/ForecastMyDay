@@ -1,0 +1,100 @@
+/* 仅作用于 FlatView 组件，避免污染全局 */
+.flatview-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 原先内联样式移到这里 */
+.flatview-map {
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* 确保地图在底层控件之下/之上视你的布局需要 */
+}
+
+/* 响应式：小屏时给地图最低高度，防止被压扁 */
+@media (max-width: 480px) {
+  .flatview-map {
+    min-height: 50vh;
+  }
+}
+
+/* 可选：给地点标签一个干净的样式（若已在 MapStyles.css 定义，可删掉这段） */
+.leaflet-tooltip.label-tooltip {
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  font-size: 12px;
+}
+
+/* ========== 雷达波特效样式 ========== */
+.radar-wave {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid rgba(59, 130, 246, 0.8); /* 蓝色波纹 */
+  pointer-events: none;
+  z-index: 600; /* 在地图标记之下 */
+}
+
+/* 雷达波动画 - 从中心扩散并淡出 */
+@keyframes radar-pulse {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+    border-width: 4px;
+  }
+  50% {
+    opacity: 0.6;
+    border-width: 3px;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* 应用动画 */
+.radar-wave.active {
+  animation: radar-pulse 2.5s ease-out infinite;
+}
+
+/* 第二个波纹 - 延迟启动形成连续效果 */
+.radar-wave.wave-2 {
+  animation-delay: 0.8s;
+  border-color: rgba(96, 165, 250, 0.6);
+}
+
+/* 第三个波纹 */
+.radar-wave.wave-3 {
+  animation-delay: 1.6s;
+  border-color: rgba(147, 197, 253, 0.4);
+}
+
+/* 中心点脉冲效果 */
+.radar-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.5);
+  pointer-events: none;
+  z-index: 601;
+  animation: center-pulse 2s ease-in-out infinite;
+}
+
+@keyframes center-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.8;
+  }
+}
