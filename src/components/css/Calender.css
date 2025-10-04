@@ -141,3 +141,52 @@
 .calendar-day.empty:hover {
   background: transparent;
 }
+
+
+/* Add to Calender.css */
+
+.month-year-selectors {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.month-selector,
+.year-selector {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  color: #fff;
+  padding: 6px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.month-selector {
+  min-width: 110px;
+}
+
+.year-selector {
+  min-width: 70px;
+}
+
+.month-selector:hover,
+.year-selector:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.month-selector:focus,
+.year-selector:focus {
+  background: rgba(255,255,255,0.2);
+  border-color: #1f8fff;
+}
+
+.month-selector option,
+.year-selector option {
+  background: #1a1a1a;
+  color: #fff;
+}

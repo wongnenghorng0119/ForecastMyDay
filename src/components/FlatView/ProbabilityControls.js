@@ -7,14 +7,24 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateRange, setDateRange] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
 
   const calendarRef = useRef(null);
 
   const handleDateRangeChange = (range) => setDateRange(range);
 
   const handleCalculate = () => {
-    if (!selectedArea) return alert("Please click on a location on the map or search for a place first.");
-    if (!dateRange) return alert("Please select a date range first.");
+    if (!selectedArea) {
+      setWarningMessage("Please click on a location on the map or search for a place first.");
+      setShowWarning(true);
+      return;
+    }
+    if (!dateRange) {
+      setWarningMessage("Please select a date range first.");
+      setShowWarning(true);
+      return;
+    }
     onCalculate(
       selectedArea.lat,
       selectedArea.lng,
@@ -26,8 +36,8 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
 
   const formatDateRangeDisplay = useCallback(() => {
     if (!dateRange) return "Select date range";
-    const startStr = dateRange.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    const endStr   = dateRange.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const startStr = dateRange.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    const endStr   = dateRange.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     return `${startStr} - ${endStr}`;
   }, [dateRange]);
 
@@ -112,6 +122,145 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
         </button>
       )}
 
+      {/* Warning Modal */}
+      {showWarning && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 2147483647,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            animation: "fadeIn 0.2s ease",
+          }}
+        >
+          {/* 背景遮罩 */}
+          <div
+            onClick={() => setShowWarning(false)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.7)",
+              backdropFilter: "blur(6px)",
+            }}
+          />
+
+          {/* 警告卡片 */}
+          <div
+            style={{
+              position: "relative",
+              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+              borderRadius: 20,
+              padding: 32,
+              maxWidth: 450,
+              width: "90%",
+              boxShadow: "0 25px 80px rgba(0, 0, 0, 0.6)",
+              border: "2px solid rgba(255, 193, 7, 0.3)",
+              animation: "scaleIn 0.3s ease",
+            }}
+          >
+            {/* 警告图标 */}
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #ffd93d 0%, #ff6b35 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
+                fontSize: 36,
+                boxShadow: "0 8px 24px rgba(255, 193, 7, 0.4)",
+              }}
+            >
+              ⚠️
+            </div>
+
+            {/* 标题 */}
+            <h3
+              style={{
+                margin: "0 0 12px",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#fff",
+                textAlign: "center",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Action Required
+            </h3>
+
+            {/* 警告消息 */}
+            <p
+              style={{
+                margin: "0 0 28px",
+                fontSize: 16,
+                color: "rgba(255, 255, 255, 0.9)",
+                textAlign: "center",
+                lineHeight: 1.6,
+              }}
+            >
+              {warningMessage}
+            </p>
+
+            {/* 确认按钮 */}
+            <button
+              onClick={() => setShowWarning(false)}
+              style={{
+                width: "100%",
+                padding: "14px 24px",
+                borderRadius: 12,
+                border: "none",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 6px 20px rgba(102, 126, 234, 0.5)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 8px 28px rgba(102, 126, 234, 0.7)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
+              }}
+            >
+              Got it!
+            </button>
+          </div>
+
+          <style>
+            {`
+              @keyframes fadeIn {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
+
+              @keyframes scaleIn {
+                from {
+                  opacity: 0;
+                  transform: scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `}
+          </style>
+        </div>,
+        document.body
+      )}
+
       {/* 日历 Modal */}
       {showCalendar &&
         createPortal(
@@ -153,9 +302,13 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
                   borderBottom: "1px solid #333",
                 }}
               >
-                <h3 style={{ margin: 0, color: "#fff", fontSize: "18px", fontWeight: 600 }}>
-                  Select Date Range
-                </h3>
+              <h3 style={{ margin: 0, color: "#fff", fontSize: "18px", fontWeight: 600 }}>
+                {dateRange?.startDate && dateRange?.endDate ? (
+                  `${dateRange.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} - ${dateRange.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                ) : (
+                  "Select Date Range"
+                )}
+              </h3>
                 <button
                   onClick={() => setShowCalendar(false)}
                   style={{

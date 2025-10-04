@@ -56,10 +56,17 @@ export default function App() {
     setTransitionTarget(null);
   };
 
-  // Handle voice search with loading animation - 语音搜索触发过渡动画
-  const handleVoiceSearch = async (locationName) => {
+  // Handle search with loading animation - 搜索触发过渡动画
+  const handleSearch = async (locationName) => {
     if (!locationName) return;
     
+    // 如果在2D模式，直接调用2D搜索
+    if (mode === "flat" && searchHandlerRef.current) {
+      searchHandlerRef.current(locationName);
+      return;
+    }
+    
+    // 如果在3D模式，触发过渡动画
     setQuery(locationName);
     setPendingSearch(locationName);
     
@@ -97,6 +104,55 @@ export default function App() {
     }, 100);
   };
 
+// Handle voice search with loading animation - 语音搜索触发过渡动画
+const handleVoiceSearch = async (locationName) => {
+  if (!locationName) return;
+  
+  setQuery(locationName);
+  
+  // 如果在2D模式，直接调用2D搜索，不触发loading动画
+  if (mode === "flat" && searchHandlerRef.current) {
+    searchHandlerRef.current(locationName);
+    return;
+  }
+  
+  // 如果在3D模式或loading模式，触发过渡动画
+  setPendingSearch(locationName);
+  
+  // 使用 Nominatim API 获取坐标
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(locationName)}&addressdetails=1&limit=1`;
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" }
+    });
+    
+    if (response.ok) {
+      const results = await response.json();
+      if (results && results.length > 0) {
+        const result = results[0];
+        const lat = parseFloat(result.lat);
+        const lng = parseFloat(result.lon);
+        
+        // 触发 Loading 动画
+        setSelectedName(locationName);
+        setTransitionTarget({ name: locationName, lat, lng });
+        setMode("loading");
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("Geocoding error:", error);
+  }
+  
+  // 如果获取坐标失败，直接切换到 flat 模式并搜索
+  setMode("flat");
+  setTimeout(() => {
+    if (searchHandlerRef.current) {
+      searchHandlerRef.current(locationName);
+    }
+  }, 100);
+};
+
   return (
     <div
       style={{
@@ -116,7 +172,7 @@ export default function App() {
         clearArea={() => setSelectedArea(null)}
         query={query}
         setQuery={setQuery}
-        onSearch={(q) => searchHandlerRef.current?.(q)}
+        onSearch={handleSearch}
         onVoiceSearch={handleVoiceSearch}
       />
 
