@@ -3,12 +3,19 @@ import { createPortal } from "react-dom";
 import Calendar from "../Calendar";
 import "../css/ProbabilityControls.css";
 
-const ProbabilityControls = ({ selectedArea, onCalculate }) => {
+const ProbabilityControls = ({ selectedArea, onCalculate, hideWhenResultsOpen }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [dateRange, setDateRange] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
+
+  // Auto-collapse when results panel opens
+  useEffect(() => {
+    if (hideWhenResultsOpen) {
+      setCollapsed(true);
+    }
+  }, [hideWhenResultsOpen]);
 
   const calendarRef = useRef(null);
 
@@ -25,6 +32,10 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
       setShowWarning(true);
       return;
     }
+    
+    // Collapse the panel immediately when calculate is clicked
+    setCollapsed(true);
+    
     onCalculate(
       selectedArea.lat,
       selectedArea.lng,
@@ -72,7 +83,7 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
             aria-label="Collapse"
             title="Collapse"
           >
-            ☁
+            v
           </button>
         )}
 
@@ -118,7 +129,7 @@ const ProbabilityControls = ({ selectedArea, onCalculate }) => {
           aria-label="Expand"
           title="Expand"
         >
-          ☁
+          {'^'}
         </button>
       )}
 

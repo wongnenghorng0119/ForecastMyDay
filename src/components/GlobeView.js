@@ -171,9 +171,152 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
     }
   }, [focusLocation]);
 
+  const handleIntroduction = () => {
+    // TODO: Add introduction functionality
+    console.log("Introduction button clicked");
+  };
+
+  const handleHelp = () => {
+    // TODO: Add help functionality
+    console.log("Help button clicked");
+  };
+
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <Starfield />
+      
+      {/* Introduction and Help Buttons */}
+      <style>
+        {`
+          .globe-buttons-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+          }
+
+          .globe-btn-text {
+            display: inline;
+          }
+
+          @media (max-width: 768px) {
+            .globe-buttons-container {
+              top: auto;
+              bottom: 20px;
+              right: 20px;
+              left: auto;
+              width: auto;
+              flex-direction: column;
+              padding: 0;
+            }
+
+            .globe-btn-text {
+              display: none;
+            }
+
+            .globe-intro-btn {
+              width: 56px !important;
+              height: 56px !important;
+              min-width: 56px !important;
+              padding: 0 !important;
+              border-radius: 50% !important;
+            }
+
+            .globe-help-btn {
+              width: 56px !important;
+              height: 56px !important;
+              min-width: 56px !important;
+              padding: 0 !important;
+              border-radius: 50% !important;
+            }
+
+            .globe-btn-emoji {
+              font-size: 24px !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .globe-buttons-container {
+              bottom: 12px;
+              right: 12px;
+            }
+          }
+        `}
+      </style>
+      
+      <div className="globe-buttons-container">
+        <button
+          onClick={handleIntroduction}
+          className="globe-intro-btn"
+          style={{
+            padding: "12px 20px",
+            background: "linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9))",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            borderRadius: "12px",
+            color: "#fff",
+            fontSize: "15px",
+            fontWeight: "700",
+            cursor: "pointer",
+            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+            backdropFilter: "blur(10px)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            minWidth: "140px",
+            justifyContent: "center"
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "translateY(-2px)";
+            e.target.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.3)";
+          }}
+        >
+          <span className="globe-btn-emoji" style={{ fontSize: "18px" }}>📖</span>
+          <span className="globe-btn-text">Introduction</span>
+        </button>
+
+        <button
+          onClick={handleHelp}
+          className="globe-help-btn"
+          style={{
+            padding: "12px 20px",
+            background: "linear-gradient(135deg, rgba(212, 175, 55, 0.9), rgba(255, 193, 7, 0.9))",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            borderRadius: "12px",
+            color: "#fff",
+            fontSize: "15px",
+            fontWeight: "700",
+            cursor: "pointer",
+            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+            backdropFilter: "blur(10px)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            minWidth: "140px",
+            justifyContent: "center"
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "translateY(-2px)";
+            e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.3)";
+          }}
+        >
+          <span className="globe-btn-emoji" style={{ fontSize: "18px" }}>❓</span>
+          <span className="globe-btn-text">Help</span>
+        </button>
+      </div>
+
       <Globe
         ref={globeRef}
         backgroundColor="rgba(0,0,0,0)"

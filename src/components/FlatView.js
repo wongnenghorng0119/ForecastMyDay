@@ -163,6 +163,7 @@ const FlatView = ({ selectedArea, setSelectedArea, setSearchHandler, onSwitchToG
       <ProbabilityControls
         selectedArea={selectedArea}
         onCalculate={runStats}
+        hideWhenResultsOpen={showResults}
       />
 
 

@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import "../css/ResultsPanel.css";
 import AnalysisLoading from "../AnalysisLoading";
 import ProbabilityInsights from "../ProbabilityInsights";
+import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 const ResultsPanel = ({
   open,
@@ -161,31 +163,171 @@ const ResultsPanel = ({
       });
   }, [stats]);
 
-  // 下载 Basic CSV
-  const downloadBasicCSV = () => {
+  // Download Basic Excel with embedded data for chart
+  const downloadBasicExcel = async () => {
     const details = generateAllDailyDetails();
     if (details.length === 0) return;
 
-    const headers = ['Date', 'Month', 'Day', 'Very Hot (%)', 'Very Cold (%)', 'Very Wet (%)', 'Very Windy (%)', 'Very Uncomfortable (%)'];
-    const rows = details.map(d => [
-      d.date,
-      d.month,
-      d.day,
-      d.veryHot,
-      d.veryCold,
-      d.veryWet,
-      d.veryWindy,
-      d.veryUncomfortable
-    ]);
+    // Create workbook
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Weather Analysis');
 
-    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Add title
+    worksheet.mergeCells('A1:C1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = `Weather Probability Analysis - ${selectedArea?.name || "Location"}`;
+    titleCell.font = { size: 16, bold: true, color: { argb: 'FF1F4788' } };
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    titleCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE7F3FF' }
+    };
+    worksheet.getRow(1).height = 30;
+
+    // Add spacing
+    worksheet.addRow([]);
+
+    // Calculate summary data
+    const summaryData = [
+      ['Very Hot', Math.round(details.reduce((sum, d) => sum + d.veryHot, 0) / details.length)],
+      ['Very Cold', Math.round(details.reduce((sum, d) => sum + d.veryCold, 0) / details.length)],
+      ['Very Wet', Math.round(details.reduce((sum, d) => sum + d.veryWet, 0) / details.length)],
+      ['Very Windy', Math.round(details.reduce((sum, d) => sum + d.veryWindy, 0) / details.length)],
+      ['Very Uncomfortable', Math.round(details.reduce((sum, d) => sum + d.veryUncomfortable, 0) / details.length)],
+    ];
+
+    // Add chart data header
+    const chartHeaderRow = worksheet.addRow(['Weather Condition', 'Probability (%)', 'Visual Chart']);
+    chartHeaderRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    chartHeaderRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    chartHeaderRow.alignment = { horizontal: 'center', vertical: 'middle' };
+    chartHeaderRow.height = 25;
+
+    // Add chart data with visual bars
+    summaryData.forEach((data) => {
+      const row = worksheet.addRow(data);
+      row.alignment = { horizontal: 'center', vertical: 'middle' };
+      
+      // Color code the percentage
+      const percentValue = data[1];
+      let color = 'FF92D050'; // Green
+      if (percentValue >= 60) color = 'FFFF6B6B'; // Red
+      else if (percentValue >= 30) color = 'FFFFD93D'; // Yellow
+      
+      row.getCell(2).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: color }
+      };
+      row.getCell(2).font = { bold: true, size: 14 };
+      
+      // Add visual bar
+      const barLength = Math.round((percentValue / 100) * 40);
+      row.getCell(3).value = '█'.repeat(Math.max(1, barLength)) + ` ${percentValue}%`;
+      row.getCell(3).font = { size: 11, color: { argb: 'FF4472C4' } };
+      row.getCell(3).alignment = { horizontal: 'left', vertical: 'middle' };
+      row.height = 22;
+    });
+
+    // Set column widths
+    worksheet.getColumn(1).width = 25;
+    worksheet.getColumn(2).width = 18;
+    worksheet.getColumn(3).width = 60;
+
+    // Add spacing
+    worksheet.addRow([]);
+    worksheet.addRow([]);
+
+    // Add instruction
+    const instructionRow = worksheet.addRow(['📊 To create a bar chart: Select cells A3:B8 → Insert Tab → Column/Bar Chart']);
+    worksheet.mergeCells(`A${instructionRow.number}:C${instructionRow.number}`);
+    instructionRow.getCell(1).font = { size: 12, bold: true, color: { argb: 'FF666666' } };
+    instructionRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+    instructionRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFF4CC' }
+    };
+
+    // Add spacing before detailed data
+    worksheet.addRow([]);
+    worksheet.addRow([]);
+
+    // Add detailed data section
+    const detailTitleRow = worksheet.addRow(['Daily Breakdown Data']);
+    worksheet.mergeCells(`A${detailTitleRow.number}:H${detailTitleRow.number}`);
+    detailTitleRow.getCell(1).font = { size: 14, bold: true, color: { argb: 'FF1F4788' } };
+    detailTitleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+    detailTitleRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE7F3FF' }
+    };
+    detailTitleRow.height = 25;
+
+    // Add data headers
+    const headers = ['Date', 'Month', 'Day', 'Very Hot (%)', 'Very Cold (%)', 'Very Wet (%)', 'Very Windy (%)', 'Very Uncomfortable (%)'];
+    const headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+    headerRow.height = 20;
+
+    // Add data rows
+    details.forEach(d => {
+      const row = worksheet.addRow([
+        d.date,
+        d.month,
+        d.day,
+        d.veryHot,
+        d.veryCold,
+        d.veryWet,
+        d.veryWindy,
+        d.veryUncomfortable
+      ]);
+      row.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
+
+    // Set column widths for detail section
+    worksheet.getColumn(4).width = 15;
+    worksheet.getColumn(5).width = 15;
+    worksheet.getColumn(6).width = 15;
+    worksheet.getColumn(7).width = 15;
+    worksheet.getColumn(8).width = 22;
+
+    // Add borders to all cells
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+      }
+    });
+
+    // Generate and download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `nasa_power_basic_${(selectedArea?.name || "location").replace(/\s+/g, "_")}_${month}_${day}_pm${windowDays}.csv`;
+    link.download = `weather_analysis_${(selectedArea?.name || "location").replace(/\s+/g, "_")}_${month}_${day}.xlsx`;
     link.click();
     URL.revokeObjectURL(url);
+    
     setShowCSVModal(false);
   };
 
@@ -229,6 +371,13 @@ const ResultsPanel = ({
     setSelectedCondition(null);
   };
 
+  // Format date to "Oct 3" style
+  const formatDate = (month, day) => {
+    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", 
+                       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    return `${monthNames[month - 1]} ${day}`;
+  };
+
   return (
     <>
       <AnalysisLoading show={!!loadingStats} />
@@ -241,7 +390,7 @@ const ResultsPanel = ({
             aria-label={open ? "Collapse" : "Expand"}
             title={open ? "Collapse" : "Expand"}
           >
-            ☁
+            {'>'}
           </button>
 
           {/* 唯一入口：📈 */}
@@ -251,8 +400,20 @@ const ResultsPanel = ({
             onClick={() => setShowInsights(true)}
             aria-label="Open Probability Insights"
             title="Open Probability Insights"
+            style={{
+              width: 'auto',
+              minWidth: '80px',
+              padding: '0 10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              fontSize: '13px',
+              fontWeight: '600'
+            }}
           >
-            📈
+            <span style={{ fontSize: '16px' }}>📈</span>
+            <span>Insight</span>
           </button>
         </div>
 
@@ -315,7 +476,7 @@ const ResultsPanel = ({
           aria-label="Expand stats"
           title="Expand stats"
         >
-          ☁
+          {'<'}
         </button>
       )}
 
@@ -584,27 +745,30 @@ const ResultsPanel = ({
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                       <div
                         style={{
-                          width: 48,
-                          height: 48,
+                          width: 56,
+                          height: 56,
                           borderRadius: "50%",
                           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: 700,
                           color: "#fff",
+                          padding: "4px",
                         }}
                       >
-                        <div>{detail.month}</div>
-                        <div style={{ fontSize: 14 }}>{detail.day}</div>
+                        <div style={{ fontSize: 13, opacity: 0.9 }}>
+                          {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][detail.month - 1]}
+                        </div>
+                        <div style={{ fontSize: 16, marginTop: 2 }}>{String(detail.day).padStart(2, '0')}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: 16, fontWeight: 600, color: "#fff" }}>
-                          {detail.date}
+                        <div style={{ fontSize: 18, fontWeight: 600, color: "#fff" }}>
+                          {formatDate(detail.month, detail.day)}
                         </div>
-                        <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.6)" }}>
+                        <div style={{ fontSize: 18, color: "rgba(255, 255, 255, 0.6)" }}>
                           {detail.count} out of {detail.total} years
                         </div>
                       </div>
@@ -822,7 +986,7 @@ const ResultsPanel = ({
 
               {/* Basic 选项 */}
               <button
-                onClick={downloadBasicCSV}
+                onClick={downloadBasicExcel}
                 style={{
                   background: "rgba(255, 255, 255, 0.1)",
                   border: "2px solid rgba(255, 255, 255, 0.2)",
@@ -856,14 +1020,14 @@ const ResultsPanel = ({
                       fontSize: 24,
                     }}
                   >
-                    📋
+                    📊
                   </div>
                   <div style={{ flex: 1, textAlign: "left" }}>
                     <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
-                      Basic Format
+                      Basic Format (Excel)
                     </div>
                     <div style={{ fontSize: 13, opacity: 0.8 }}>
-                      Daily breakdown for all conditions
+                      Daily breakdown + Summary chart
                     </div>
                   </div>
                 </div>
