@@ -2,7 +2,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // 直接硬编码 API Key
-const API_KEY = "AIzaSyCOlY2ZVZ8KWug5BOmwdWleVEYOZBzKh0g";
+const API_KEY = "AIzaSyD0KPoKjO19yPFZ1ojpDN0_uuZIcY3vDBE";
 
 export const genAI = new GoogleGenerativeAI(API_KEY);
 
