@@ -526,7 +526,7 @@ const ResultsPanel = ({
             title="Open Probability Insights"
           >
             <span style={{ fontSize: "16px" }}>📈</span>
-            <span>Insight</span>
+            <span>Analysis & Recommended Activities</span>
           </button>
         </div>
 
