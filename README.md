@@ -246,7 +246,7 @@ REACT_APP_NASA_POWER_API=https://power.larc.nasa.gov/api/temporal/daily/point
 ## 📧 Contact
 
 - **Website**: [https://forecastmyday.vip](https://forecastmyday.vip)
-- **Email**: support@forecastmyday.vip
+- **Email**: wongnenghong@gmail.com
 
 ---
 
