@@ -34,31 +34,54 @@ Turn a decade of NASA POWER data into simple, location-specific weather probabil
 
 ## 🎬 How It Works
 
-### 1️⃣ **Select Location** (`public/assets/1.png`)
+### 1️⃣ **Select Location**
+
+![Step 1: Select Location](public/assets/1.png)
+
 - Switch between **3D Globe** and **2D Map** views
 - **Search by name** or use **Voice Search** to speak your destination
 - Click/tap directly on the map to select any location
 - Access **Introduction** and **Help** guides anytime
 
-### 2️⃣ **Choose Date Range** (`public/assets/2.png`)
+---
+
+### 2️⃣ **Choose Date Range**
+
+![Step 2: Choose Date Range](public/assets/2.png)
+
 - Select your target date window (e.g., "March 15-25")
 - View selected location (name or coordinates)
 - Click **Calculate Probability** to analyze 10 years of NASA data
 - Results appear instantly in the side panel
 
-### 3️⃣ **Review Results** (`public/assets/3.png`)
+---
+
+### 3️⃣ **Review Results**
+
+![Step 3: Review Results](public/assets/3.png)
+
 - View probability cards for each weather condition
 - Click any card for **day-by-day breakdown**
 - Open **Analysis & Recommended Activities** for AI insights
 - **Download** analysis in Basic or Pro format
 
-### 4️⃣ **AI Analysis & Activities** (`public/assets/4.png`)
+---
+
+### 4️⃣ **AI Analysis & Activities**
+
+![Step 4: AI Analysis & Activities](public/assets/4.png)
+
 - **Bar chart** showing probability distribution
 - **Plain-English summary** of weather patterns
 - **3 Activity Suggestions** with photos and descriptions
 - **Voice playback** for hands-free listening
 
-### 5️⃣ **Export Data** (`public/assets/5.png`)
+---
+
+### 5️⃣ **Export Data**
+
+![Step 5: Export Data](public/assets/5.png)
+
 - **Basic Format (Excel)**: Human-readable with summary charts
 - **Pro Format (CSV)**: Statistical data for advanced analysis
 
