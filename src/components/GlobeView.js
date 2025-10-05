@@ -151,6 +151,9 @@ const HelpCarousel = ({ onClose }) => {
   const guidelines = [
     { step: 1, image: "/assets/1.png", title: "Step 1: Select Location" },
     { step: 2, image: "/assets/2.png", title: "Step 2: Choose Dates" },
+    { step: 3, image: "/assets/3.png", title: "Step 3: Result Panel"},
+    { step: 4, image: "/assets/4.png", title: "Graph & Analysis"},
+    { step: 5, image: "/assets/5.png", title: "Download Weather Probability Analysis"},
   ];
 
   const goToPrevious = () => {
