@@ -463,6 +463,15 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
   const globeRef = useRef();
   const [showIntroModal, setShowIntroModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  useEffect(() => {
+  const key = 'introShownOnce'; // 如果要跨会话用 localStorage
+  const shown = sessionStorage.getItem(key);
+  if (!shown) {
+    setShowIntroModal(true);
+    sessionStorage.setItem(key, '1');
+  }
+}, []);
+
 
   const flyTo = (feat) => {
     if (!globeRef.current || !feat || !feat.geometry) return;
