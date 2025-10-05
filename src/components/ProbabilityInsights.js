@@ -417,7 +417,7 @@ if (adviceMatch) {
       {/* Voice Button - Outside Analysis Card */}
       {!loading && !error && (summary || advice) && (
         <button
-          className="primary sm simple-cta"
+          className="calculate-btn"
           onClick={handleVoice}
           style={{
             marginTop: 16,
