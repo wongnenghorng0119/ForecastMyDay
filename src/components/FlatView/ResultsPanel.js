@@ -593,7 +593,7 @@ const ResultsPanel = ({
               aria-label="Download CSV"
               title="Download CSV"
             >
-              CSV
+              Download Weather Probability Analysis
             </button>
           ) : null}
         </div>
@@ -822,25 +822,18 @@ const ResultsPanel = ({
 
                   <button
                     onClick={downloadBasicExcel}
-                    className="csv-btn mini"
-                    style={{ height: "auto", padding: "16px 18px" }}
+                    className="icon-btn graph-toggle"
+                    style={{
+                      justifyContent: "flex-start",
+                      padding: "16px 18px",
+                      height: "auto",
+                    }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <div style={{ fontSize: 20 }}>📊</div>
-                      <div style={{ fontWeight: 800 }}>Basic Format (Excel)</div>
-                      <div
-                        style={{ marginLeft: 8, opacity: 0.9, fontSize: 13 }}
-                      >
-                        Daily breakdown + Summary chart
-                      </div>
-                    </div>
+                    <span style={{ fontSize: 20 }}>📊</span>
+                    <span style={{ fontWeight: 800 }}>Basic Format (Excel)</span>
+                    <span style={{ marginLeft: 8, opacity: 0.9, fontSize: 13 }}>
+                      Daily breakdown + Summary chart
+                    </span>
                   </button>
                 </div>
               </div>

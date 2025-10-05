@@ -219,7 +219,6 @@ const HelpCarousel = ({ onClose }) => {
 
       {/* Header */}
       <div style={{ marginBottom: "30px", textAlign: "center" }}>
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>📚</div>
         <h2 style={{
           fontSize: "32px",
           fontWeight: "800",
@@ -388,37 +387,6 @@ const HelpCarousel = ({ onClose }) => {
         justifyContent: "space-between",
         alignItems: "center"
       }}>
-        <div style={{
-          color: "rgba(255, 255, 255, 0.6)",
-          fontSize: "14px"
-        }}>
-          Step {currentStep + 1} of {guidelines.length}
-        </div>
-        <button
-          onClick={onClose}
-          style={{
-            padding: "14px 32px",
-            background: "linear-gradient(135deg, #d4af37, #ffc107)",
-            border: "none",
-            borderRadius: "12px",
-            color: "#fff",
-            fontSize: "16px",
-            fontWeight: "700",
-            cursor: "pointer",
-            boxShadow: "0 4px 15px rgba(212, 175, 55, 0.4)",
-            transition: "all 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "translateY(-2px)";
-            e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.6)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "translateY(0)";
-            e.target.style.boxShadow = "0 4px 15px rgba(212, 175, 55, 0.4)";
-          }}
-        >
-          Got It! 👍
-        </button>
       </div>
     </div>
   );
