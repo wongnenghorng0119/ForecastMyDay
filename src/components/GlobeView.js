@@ -136,17 +136,21 @@ const Starfield = () => {
   );
 };
 
-// Help Carousel Component
+// Help Carousel Component  —— 只改这个组件
 const HelpCarousel = ({ onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  
-  // 添加你的 guideline 图片路径
+
+  // 尺寸计算所需的 refs + 状态
+  const containerRef = useRef(null);
+  const headerRef = useRef(null);
+  const dotsRef = useRef(null);
+  const footerRef = useRef(null);
+  const [viewportH, setViewportH] = useState(400);
+
+  // guideline 图片
   const guidelines = [
     { step: 1, image: "/assets/1.png", title: "Step 1: Select Location" },
     { step: 2, image: "/assets/2.png", title: "Step 2: Choose Dates" },
-    // 添加更多步骤：
-    // { step: 3, image: "/assets/3.png", title: "Step 3: View Results" },
-    // { step: 4, image: "/assets/4.png", title: "Step 4: Download Data" },
   ];
 
   const goToPrevious = () => {
@@ -163,6 +167,41 @@ const HelpCarousel = ({ onClose }) => {
     if (e.key === 'Escape') onClose();
   };
 
+  // 计算轮播可用高度，让图片跟随容器
+  useEffect(() => {
+    const compute = () => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const cs = window.getComputedStyle(el);
+      const padTop = parseFloat(cs.paddingTop) || 0;
+      const padBottom = parseFloat(cs.paddingBottom) || 0;
+
+      const headerH = headerRef.current?.offsetHeight || 0;
+      const dotsH = dotsRef.current?.offsetHeight || 0;
+      const footerH = footerRef.current?.offsetHeight || 0;
+
+      // 你的 header/dots 有 margin-bottom: 30px
+      const spacing = 30 /* header mb */ + 30 /* dots mb */;
+
+      const available =
+        el.clientHeight - padTop - padBottom - headerH - dotsH - footerH - spacing;
+
+      setViewportH(Math.max(240, available)); // 至少 240，避免窗口过小
+    };
+
+    compute();
+
+    // 监听容器尺寸变化
+    const ro = new ResizeObserver(compute);
+    if (containerRef.current) ro.observe(containerRef.current);
+    window.addEventListener("resize", compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", compute);
+    };
+  }, []);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -170,6 +209,7 @@ const HelpCarousel = ({ onClose }) => {
 
   return (
     <div
+      ref={containerRef}
       style={{
         background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))",
         borderRadius: "24px",
@@ -180,7 +220,14 @@ const HelpCarousel = ({ onClose }) => {
         border: "1px solid rgba(255, 255, 255, 0.1)",
         boxShadow: "0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(212, 175, 55, 0.2)",
         position: "relative",
-        animation: "slideUp 0.4s ease"
+        animation: "slideUp 0.4s ease",
+
+        // 关键：形成独立层，裁剪溢出，内部按列布局
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        boxSizing: "border-box",
+        isolation: "isolate"
       }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -218,7 +265,7 @@ const HelpCarousel = ({ onClose }) => {
       </button>
 
       {/* Header */}
-      <div style={{ marginBottom: "30px", textAlign: "center" }}>
+      <div ref={headerRef} style={{ marginBottom: "30px", textAlign: "center" }}>
         <h2 style={{
           fontSize: "32px",
           fontWeight: "800",
@@ -239,20 +286,28 @@ const HelpCarousel = ({ onClose }) => {
         </p>
       </div>
 
-      {/* Carousel Container */}
+      {/* Carousel Container —— 高度跟随容器计算结果 */}
       <div style={{
         position: "relative",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: "30px"
+        marginBottom: "30px",
+
+        flex: "0 0 auto",
+        height: viewportH,    // ★ 关键
+        minHeight: 0,
+        padding: "0 60px",
+        overflow: "hidden"
       }}>
         {/* Previous Button */}
         <button
           onClick={goToPrevious}
           style={{
             position: "absolute",
-            left: "-20px",
+            left: "12px",
+            top: "50%",
+            transform: "translateY(-50%)",
             background: "linear-gradient(135deg, #d4af37, #ffc107)",
             border: "none",
             borderRadius: "50%",
@@ -269,11 +324,11 @@ const HelpCarousel = ({ onClose }) => {
             zIndex: 10
           }}
           onMouseEnter={(e) => {
-            e.target.style.transform = "scale(1.1)";
+            e.target.style.transform = "translateY(-50%) scale(1.1)";
             e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.6)";
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = "scale(1)";
+            e.target.style.transform = "translateY(-50%) scale(1)";
             e.target.style.boxShadow = "0 4px 15px rgba(212, 175, 55, 0.4)";
           }}
         >
@@ -287,15 +342,16 @@ const HelpCarousel = ({ onClose }) => {
           padding: "20px",
           border: "1px solid rgba(255, 255, 255, 0.1)",
           width: "100%",
-          maxWidth: "800px"
+          maxWidth: "800px",
+          height: "100%",
+          overflow: "hidden"
         }}>
           <img
             src={guidelines[currentStep].image}
             alt={guidelines[currentStep].title}
             style={{
               width: "100%",
-              height: "auto",
-              maxHeight: "500px",
+              height: "100%",
               objectFit: "contain",
               borderRadius: "12px",
               border: "1px solid rgba(255, 255, 255, 0.1)"
@@ -309,7 +365,7 @@ const HelpCarousel = ({ onClose }) => {
             display: 'none',
             alignItems: 'center',
             justifyContent: 'center',
-            height: '300px',
+            height: '100%',
             background: 'rgba(255, 255, 255, 0.05)',
             borderRadius: '12px',
             color: 'rgba(255, 255, 255, 0.5)',
@@ -324,7 +380,9 @@ const HelpCarousel = ({ onClose }) => {
           onClick={goToNext}
           style={{
             position: "absolute",
-            right: "-20px",
+            right: "12px",
+            top: "50%",
+            transform: "translateY(-50%)",
             background: "linear-gradient(135deg, #d4af37, #ffc107)",
             border: "none",
             borderRadius: "50%",
@@ -341,11 +399,11 @@ const HelpCarousel = ({ onClose }) => {
             zIndex: 10
           }}
           onMouseEnter={(e) => {
-            e.target.style.transform = "scale(1.1)";
+            e.target.style.transform = "translateY(-50%) scale(1.1)";
             e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.6)";
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = "scale(1)";
+            e.target.style.transform = "translateY(-50%) scale(1)";
             e.target.style.boxShadow = "0 4px 15px rgba(212, 175, 55, 0.4)";
           }}
         >
@@ -354,12 +412,15 @@ const HelpCarousel = ({ onClose }) => {
       </div>
 
       {/* Step Indicators */}
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "8px",
-        marginBottom: "30px"
-      }}>
+      <div
+        ref={dotsRef}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "8px",
+          marginBottom: "30px"
+        }}
+      >
         {guidelines.map((_, index) => (
           <button
             key={index}
@@ -380,13 +441,16 @@ const HelpCarousel = ({ onClose }) => {
       </div>
 
       {/* Footer */}
-      <div style={{
-        borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-        paddingTop: "24px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
+      <div
+        ref={footerRef}
+        style={{
+          borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+          paddingTop: "24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}
+      >
       </div>
     </div>
   );
@@ -735,7 +799,7 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
               <div style={{
                 background: "rgba(212, 175, 55, 0.1)",
                 border: "1px solid rgba(212, 175, 55, 0.3)",
-                borderRadius: "16px",
+                borderRadius: "16px)",
                 padding: "24px",
                 marginBottom: "24px"
               }}>
