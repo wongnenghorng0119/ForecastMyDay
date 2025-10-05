@@ -413,7 +413,7 @@ const ResultsPanel = ({
             }}
           >
             <span style={{ fontSize: '16px' }}>📈</span>
-            <span>Insight</span>
+            <span>Analysis & Recommended Activities</span>
           </button>
         </div>
 
@@ -458,7 +458,7 @@ const ResultsPanel = ({
                 onClick={() => setShowCSVModal(true)}
                 style={{ cursor: 'pointer' }}
               >
-                CSV
+                Download Weather Probability Analysis
               </button>
             ) : null}
           </>
@@ -975,7 +975,7 @@ const ResultsPanel = ({
                   </div>
                   <div style={{ flex: 1, textAlign: "left" }}>
                     <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
-                      Pro Format
+                      Pro Format (Excel)
                     </div>
                     <div style={{ fontSize: 13, opacity: 0.9 }}>
                       Statistical summary data

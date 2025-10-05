@@ -22,11 +22,13 @@ export default function ProbabilityInsights({
   // -------- State（无条件调用 Hooks，避免 ESLint 报错） --------
   const [summary, setSummary] = useState("");
   const [advice, setAdvice] = useState("");
+  const [activities, setActivities] = useState([]); // 新增：存储活动建议（包含图片）
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // -------- 结果缓存（按数据签名存取） --------
-  // Map<signature, {summary, advice}>
+  // Map<signature, {summary, advice, activities}>
   const cacheRef = useRef(new Map());
 
   // 生成稳定签名：标签+数值（四舍五入到 3 位，避免细微浮动导致误判）
@@ -83,13 +85,14 @@ export default function ProbabilityInsights({
         setError("");
         setSummary(cached.summary);
         setAdvice(cached.advice);
+        setActivities(cached.activities || []);
         return;
       }
 
       setLoading(true);
       setError("");
       try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
         const payload = {
           task: "summarize_probability_distribution",
           guidance:
@@ -99,31 +102,87 @@ export default function ProbabilityInsights({
             "Numbers represent probabilities in [0,1] or percentages. If values > 1 assume percentages. Be precise and avoid hallucinations.",
         };
         const prompt =
-          `You are given a small probability result set as JSON.\n` +
-          `- Provide a concise summary (2-4 sentences).\n` +
-          `- Provide short actionable advice (3-5 bullets).\n` +
-          `- If values look like percentages (>1), treat them as percentages; else treat as 0..1 probabilities.\n` +
-          `Return two sections with clear headings: Summary and Advice.\n` +
-          `JSON data:\n` +
-          JSON.stringify(payload, null, 2);
-
+        `You are given weather probability data as JSON.\n` +
+        `\n` +
+        `TASK:\n` +
+        `1. Analyze the weather conditions and provide a concise summary (2-4 sentences)\n` +
+        `2. Suggest 3 specific activities (outdoor or indoor) that match the weather\n` +
+        `3. For EACH activity, search Google Images and provide a direct image URL\n` +
+        `\n` +
+        `RETURN FORMAT (MUST be exact):\n` +
+        `\n` +
+        `Summary: [Your weather analysis here]\n` +
+        `\n` +
+        `Activities:\n` +
+        `[\n` +
+        `  {"name": "Activity Name", "description": "Why this activity suits the weather", "imageUrl": "https://..."},\n` +
+        `  {"name": "Activity Name", "description": "Why this activity suits the weather", "imageUrl": "https://..."},\n` +
+        `]\n` +
+        `\n` +
+        `IMAGE URL REQUIREMENTS:\n` +
+        `- For each activity, perform a Google Image search with the activity name\n` +
+        `- Use the direct image URL from Google search results\n` +
+        `- Preferred image sources (in order):\n` +
+        `  1. Pexels.com images (https://images.pexels.com/...)\n` +
+        `  2. Pixabay.com images (https://cdn.pixabay.com/...)\n` +
+        `  5. Any other direct image URL that appears in Google Images\n` +
+        `- CRITICAL: URLs must be DIRECT image links (ending in  .jpeg, .png, format only！！！！！)\n` +
+        `- DO NOT use:\n` +
+        `  * Google's proxy URLs (e.g., googleusercontent.com)\n` +
+        `  * Shortened URLs or redirects\n` +
+        `- Each imageUrl MUST be different and specifically match its activity\n` +
+        `- Test that the URL works by ensuring it's a direct image link\n` +
+        `\n` +
+        `ACTIVITY GUIDELINES:\n` +
+        `- For rainy/bad weather: indoor activities (reading, cooking, gaming, yoga, museum, baking, crafts, movie)\n` +
+        `- For sunny/good weather: outdoor activities (hiking, cycling, picnic, beach, sports, walking, camping, fishing)\n` +
+        `- Be specific and descriptive: "Mountain Hiking" not just "Hiking"\n` +
+        `- Choose realistic activities people can actually do\n` +
+        `\n` +
+        `IMPORTANT: Search Google Images for each activity and use real image URLs from the search results. PLS MAKE SURE THE IMAGE CAN BE OPEN NO ERROR 404 AND THE IMAGE IS REALLY RELATED WITHT ACTIVITY\n` +
+        `\n` +
+        `Weather data to analyze:\n` +
+        JSON.stringify(payload, null, 2);
         const result = await model.generateContent([prompt]);
         const response = await result.response;
         const txt = (response.text() || "").trim();
         if (cancelled) return;
 
-        let s = "", adv = "";
-        const parts = txt.split(/\n\s*Advice\s*:?/i);
-        if (parts.length > 1) {
-          s = parts[0].replace(/Summary\s*:?/i, "").trim();
-          adv = parts.slice(1).join("\n").trim();
-        } else {
-          s = txt;
-          adv = "";
+        console.log("=== Gemini Response ===");
+console.log(txt);
+console.log("======================");
+
+        let s = "", adv = "", acts = [];
+        
+// 解析 Summary（匹配到 Activities 之前停止）
+const summaryMatch = txt.match(/Summary\s*:?\s*([\s\S]*?)(?=\n\s*Activities\s*:?|$)/i);
+if (summaryMatch) {
+  s = summaryMatch[1].trim();
+}
+        
+        // 解析 Advice
+// 解析 Advice（如果有的话，在 Activities 之前停止）
+const adviceMatch = txt.match(/Advice\s*:?\s*([\s\S]*?)(?=\n\s*Activities\s*:?|$)/i);
+if (adviceMatch) {
+  adv = adviceMatch[1].trim();
+}
+        
+        // 解析 Activities JSON
+        const activitiesMatch = txt.match(/Activities\s*:?\s*(\[[\s\S]*?\])/i);
+        if (activitiesMatch) {
+          try {
+            const parsed = JSON.parse(activitiesMatch[1]);
+            if (Array.isArray(parsed)) {
+              acts = parsed.filter(a => a.name && a.description && a.imageUrl);
+            }
+          } catch (e) {
+            console.warn("Failed to parse activities JSON:", e);
+          }
         }
 
         setSummary(s);
         setAdvice(adv);
+        setActivities(acts);
 
         // 写入缓存，限制最多 10 条，简单淘汰最旧
         const map = cacheRef.current;
@@ -132,7 +191,7 @@ export default function ProbabilityInsights({
             const firstKey = map.keys().next().value;
             map.delete(firstKey);
           }
-          map.set(signature, { summary: s, advice: adv });
+          map.set(signature, { summary: s, advice: adv, activities: acts });
         }
 
         onAdvice && onAdvice({ summary: s, advice: adv });
@@ -149,6 +208,39 @@ export default function ProbabilityInsights({
       cancelled = true;
     };
   }, [visible, autoAnalyze, trimmed, signature, onAdvice]);
+
+  // -------- Text-to-Speech 功能 --------
+  const handleVoice = () => {
+    if (!summary && !advice) return;
+    
+    // 如果正在朗读，停止
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    // 组合要朗读的文本
+    const textToSpeak = `${summary ? 'Summary: ' + summary : ''} ${advice ? ' Advice: ' + advice : ''}`;
+    
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // 清理 TTS
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
 
   // -------- 图表尺寸（SSR 兜底）--------
   const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
@@ -289,6 +381,59 @@ export default function ProbabilityInsights({
           </div>
         )}
       </div>
+
+      {/* Activities Card with Images */}
+      {!loading && !error && activities.length > 0 && (
+        <div className="pi-card activities">
+          <div className="pi-section-title" style={{ marginBottom: 12 }}>Suggested Activities</div>
+          <div className="pi-activities-grid">
+            {activities.map((activity, idx) => (
+              <div key={idx} className="pi-activity-card">
+                <div className="pi-activity-image-wrapper">
+                  <img
+                    src={activity.imageUrl}
+                    alt={activity.name}
+                    className="pi-activity-image"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="pi-activity-image-fallback" style={{ display: 'none' }}>
+                    <span style={{ fontSize: 32 }}>📷</span>
+                  </div>
+                </div>
+                <div className="pi-activity-content">
+                  <div className="pi-activity-name">{activity.name}</div>
+                  <div className="pi-activity-description">{activity.description}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Voice Button - Outside Analysis Card */}
+      {!loading && !error && (summary || advice) && (
+        <button
+          className="primary sm simple-cta"
+          onClick={handleVoice}
+          style={{
+            marginTop: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            background: isSpeaking 
+              ? 'linear-gradient(135deg, transparent，100%)'
+              : undefined,
+          }}
+        >
+          <span style={{ fontSize: 18 }}>{isSpeaking ? '⏸️' : '🔊'}</span>
+          <span>{isSpeaking ? 'Stop' : 'Voice'}</span>
+        </button>
+      )}
     </div>
   );
 }
