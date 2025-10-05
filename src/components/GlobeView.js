@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Globe from "react-globe.gl";
 import { geoCentroid, geoBounds } from "d3-geo";
 
@@ -33,16 +33,15 @@ const Starfield = () => {
     // Create shooting stars
     const shootingStars = [];
     const createShootingStar = () => {
-      if (Math.random() < 0.030) { // 1.5% chance per frame
-        // Create 1-3 shooting stars at once
+      if (Math.random() < 0.030) {
         const count = Math.floor(Math.random() * 3) + 1;
         for (let i = 0; i < count; i++) {
           shootingStars.push({
             x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height * 0.5, // Top half of screen
+            y: Math.random() * canvas.height * 0.5,
             length: Math.random() * 80 + 40,
             speed: Math.random() * 8 + 6,
-            angle: Math.random() * Math.PI / 4 + Math.PI / 6, // 30-75 degrees
+            angle: Math.random() * Math.PI / 4 + Math.PI / 6,
             opacity: 1,
           });
         }
@@ -77,7 +76,6 @@ const Starfield = () => {
         const dx = Math.cos(star.angle) * star.speed;
         const dy = Math.sin(star.angle) * star.speed;
         
-        // Draw shooting star trail
         const gradient = ctx.createLinearGradient(
           star.x,
           star.y,
@@ -98,12 +96,10 @@ const Starfield = () => {
         );
         ctx.stroke();
 
-        // Update position
         star.x += dx;
         star.y += dy;
         star.opacity -= 0.01;
 
-        // Remove if off-screen or faded
         if (
           star.x > canvas.width ||
           star.y > canvas.height ||
@@ -140,8 +136,298 @@ const Starfield = () => {
   );
 };
 
+// Help Carousel Component
+const HelpCarousel = ({ onClose }) => {
+  const [currentStep, setCurrentStep] = useState(0);
+  
+  // 添加你的 guideline 图片路径
+  const guidelines = [
+    { step: 1, image: "/assets/1.png", title: "Step 1: Select Location" },
+    { step: 2, image: "/assets/2.png", title: "Step 2: Choose Dates" },
+    // 添加更多步骤：
+    // { step: 3, image: "/assets/3.png", title: "Step 3: View Results" },
+    // { step: 4, image: "/assets/4.png", title: "Step 4: Download Data" },
+  ];
+
+  const goToPrevious = () => {
+    setCurrentStep((prev) => (prev === 0 ? guidelines.length - 1 : prev - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentStep((prev) => (prev === guidelines.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowLeft') goToPrevious();
+    if (e.key === 'ArrowRight') goToNext();
+    if (e.key === 'Escape') onClose();
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  return (
+    <div
+      style={{
+        background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))",
+        borderRadius: "24px",
+        padding: "40px",
+        maxWidth: "1000px",
+        width: "100%",
+        maxHeight: "85vh",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        boxShadow: "0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(212, 175, 55, 0.2)",
+        position: "relative",
+        animation: "slideUp 0.4s ease"
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          background: "rgba(255, 255, 255, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          borderRadius: "50%",
+          width: "40px",
+          height: "40px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          fontSize: "24px",
+          color: "#fff",
+          transition: "all 0.3s ease",
+          zIndex: 10
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.background = "rgba(255, 255, 255, 0.2)";
+          e.target.style.transform = "rotate(90deg)";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.background = "rgba(255, 255, 255, 0.1)";
+          e.target.style.transform = "rotate(0deg)";
+        }}
+      >
+        ×
+      </button>
+
+      {/* Header */}
+      <div style={{ marginBottom: "30px", textAlign: "center" }}>
+        <div style={{ fontSize: "48px", marginBottom: "16px" }}>📚</div>
+        <h2 style={{
+          fontSize: "32px",
+          fontWeight: "800",
+          background: "linear-gradient(135deg, #d4af37, #ffc107)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          marginBottom: "12px",
+          letterSpacing: "-0.5px"
+        }}>
+          User Guidelines
+        </h2>
+        <p style={{
+          color: "rgba(255, 255, 255, 0.7)",
+          fontSize: "16px",
+          fontWeight: "500"
+        }}>
+          {guidelines[currentStep].title}
+        </p>
+      </div>
+
+      {/* Carousel Container */}
+      <div style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: "30px"
+      }}>
+        {/* Previous Button */}
+        <button
+          onClick={goToPrevious}
+          style={{
+            position: "absolute",
+            left: "-20px",
+            background: "linear-gradient(135deg, #d4af37, #ffc107)",
+            border: "none",
+            borderRadius: "50%",
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            fontSize: "24px",
+            color: "#fff",
+            boxShadow: "0 4px 15px rgba(212, 175, 55, 0.4)",
+            transition: "all 0.3s ease",
+            zIndex: 10
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.1)";
+            e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.6)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.boxShadow = "0 4px 15px rgba(212, 175, 55, 0.4)";
+          }}
+        >
+          ‹
+        </button>
+
+        {/* Image Container */}
+        <div style={{
+          background: "rgba(255, 255, 255, 0.05)",
+          borderRadius: "16px",
+          padding: "20px",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          width: "100%",
+          maxWidth: "800px"
+        }}>
+          <img
+            src={guidelines[currentStep].image}
+            alt={guidelines[currentStep].title}
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: "500px",
+              objectFit: "contain",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.1)"
+            }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div style={{
+            display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '300px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '12px',
+            color: 'rgba(255, 255, 255, 0.5)',
+            fontSize: '14px'
+          }}>
+            Image not found: {guidelines[currentStep].image}
+          </div>
+        </div>
+
+        {/* Next Button */}
+        <button
+          onClick={goToNext}
+          style={{
+            position: "absolute",
+            right: "-20px",
+            background: "linear-gradient(135deg, #d4af37, #ffc107)",
+            border: "none",
+            borderRadius: "50%",
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            fontSize: "24px",
+            color: "#fff",
+            boxShadow: "0 4px 15px rgba(212, 175, 55, 0.4)",
+            transition: "all 0.3s ease",
+            zIndex: 10
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.1)";
+            e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.6)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.boxShadow = "0 4px 15px rgba(212, 175, 55, 0.4)";
+          }}
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Step Indicators */}
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "8px",
+        marginBottom: "30px"
+      }}>
+        {guidelines.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentStep(index)}
+            style={{
+              width: currentStep === index ? "32px" : "12px",
+              height: "12px",
+              borderRadius: "6px",
+              border: "none",
+              background: currentStep === index 
+                ? "linear-gradient(135deg, #d4af37, #ffc107)"
+                : "rgba(255, 255, 255, 0.3)",
+              cursor: "pointer",
+              transition: "all 0.3s ease"
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+        paddingTop: "24px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }}>
+        <div style={{
+          color: "rgba(255, 255, 255, 0.6)",
+          fontSize: "14px"
+        }}>
+          Step {currentStep + 1} of {guidelines.length}
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            padding: "14px 32px",
+            background: "linear-gradient(135deg, #d4af37, #ffc107)",
+            border: "none",
+            borderRadius: "12px",
+            color: "#fff",
+            fontSize: "16px",
+            fontWeight: "700",
+            cursor: "pointer",
+            boxShadow: "0 4px 15px rgba(212, 175, 55, 0.4)",
+            transition: "all 0.3s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "translateY(-2px)";
+            e.target.style.boxShadow = "0 6px 20px rgba(212, 175, 55, 0.6)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 4px 15px rgba(212, 175, 55, 0.4)";
+          }}
+        >
+          Got It! 👍
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
   const globeRef = useRef();
+  const [showIntroModal, setShowIntroModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const flyTo = (feat) => {
     if (!globeRef.current || !feat || !feat.geometry) return;
@@ -164,7 +450,6 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
     } catch {}
   };
 
-  // Focus on the location when focusLocation changes
   useEffect(() => {
     if (focusLocation && focusLocation.lat && focusLocation.lng) {
       flyToLocation(focusLocation.lat, focusLocation.lng);
@@ -172,20 +457,17 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
   }, [focusLocation]);
 
   const handleIntroduction = () => {
-    // TODO: Add introduction functionality
-    console.log("Introduction button clicked");
+    setShowIntroModal(true);
   };
 
   const handleHelp = () => {
-    // TODO: Add help functionality
-    console.log("Help button clicked");
+    setShowHelpModal(true);
   };
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <Starfield />
       
-      {/* Introduction and Help Buttons */}
       <style>
         {`
           .globe-buttons-container {
@@ -346,12 +628,292 @@ const GlobeView = ({ features, selectedName, onPick, focusLocation }) => {
           height: "100%",
           position: "relative",
           zIndex: 1,
-          // Mobile responsive
-          [`@media (max-width: 480px)`]: {
-            minHeight: "50vh"
-          }
         }}
       />
+
+      {/* Introduction Modal */}
+      {showIntroModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(10px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            padding: "20px",
+            animation: "fadeIn 0.3s ease"
+          }}
+          onClick={() => setShowIntroModal(false)}
+        >
+          <div
+            style={{
+              background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))",
+              borderRadius: "24px",
+              padding: "40px",
+              maxWidth: "700px",
+              width: "100%",
+              maxHeight: "75vh",
+              overflowY: "auto",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(102, 126, 234, 0.2)",
+              position: "relative",
+              animation: "slideUp 0.4s ease"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowIntroModal(false)}
+              style={{
+                position: "absolute",
+                top: "20px",
+                right: "20px",
+                background: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                fontSize: "24px",
+                color: "#fff",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                e.target.style.transform = "rotate(90deg)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.1)";
+                e.target.style.transform = "rotate(0deg)";
+              }}
+            >
+              ×
+            </button>
+
+            <div style={{ marginBottom: "30px", textAlign: "center" }}>
+              <div style={{ fontSize: "48px", marginBottom: "16px" }}>🌍</div>
+              <h2 style={{
+                fontSize: "32px",
+                fontWeight: "800",
+                background: "linear-gradient(135deg, #667eea, #764ba2)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                marginBottom: "12px",
+                letterSpacing: "-0.5px"
+              }}>
+                Welcome to ForecastMyDay
+              </h2>
+              <p style={{
+                color: "rgba(255, 255, 255, 0.7)",
+                fontSize: "16px",
+                fontWeight: "500"
+              }}>
+                Plan Months Ahead with NASA-Powered Climate Intelligence
+              </p>
+            </div>
+
+            <div style={{
+              color: "rgba(255, 255, 255, 0.9)",
+              fontSize: "15px",
+              lineHeight: "1.8",
+              marginBottom: "30px"
+            }}>
+              <p style={{ marginBottom: "20px" }}>
+                <strong style={{ color: "#667eea" }}>ForecastMyDay</strong> transforms a decade of <strong>NASA POWER data</strong> into simple, location-specific odds so travelers and field teams can plan months ahead 🌧.
+              </p>
+
+              <div style={{
+                background: "rgba(102, 126, 234, 0.1)",
+                border: "1px solid rgba(102, 126, 234, 0.3)",
+                borderRadius: "16px",
+                padding: "24px",
+                marginBottom: "24px"
+              }}>
+                <h3 style={{
+                  fontSize: "18px",
+                  fontWeight: "700",
+                  color: "#667eea",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}>
+                  <span>🎯</span> How It Works
+                </h3>
+                <ul style={{ paddingLeft: "20px", margin: 0 }}>
+                  <li style={{ marginBottom: "12px" }}>
+                    <strong>Pick a Location:</strong> Use our 3D globe, voice search, or text input
+                  </li>
+                  <li style={{ marginBottom: "12px" }}>
+                    <strong>Choose Your Dates:</strong> Select the time range you care about
+                  </li>
+                  <li style={{ marginBottom: "12px" }}>
+                    <strong>Get Climate Insights:</strong> We analyze 10 years of historical data for those exact calendar days
+                  </li>
+                  <li>
+                    <strong>Make Informed Decisions:</strong> View clear percentages for weather conditions
+                  </li>
+                </ul>
+              </div>
+
+              <div style={{
+                background: "rgba(212, 175, 55, 0.1)",
+                border: "1px solid rgba(212, 175, 55, 0.3)",
+                borderRadius: "16px",
+                padding: "24px",
+                marginBottom: "24px"
+              }}>
+                <h3 style={{
+                  fontSize: "18px",
+                  fontWeight: "700",
+                  color: "#d4af37",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}>
+                  <span>📊</span> What You Get
+                </h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>🌡️</span> <span>Very Hot probability</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>❄️</span> <span>Very Cold probability</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>💨</span> <span>Very Windy probability</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>🌧️</span> <span>Very Wet probability</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>😰</span> <span>Discomfort probability</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>📈</span> <span>Interactive graphs</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{
+                background: "rgba(118, 75, 162, 0.1)",
+                border: "1px solid rgba(118, 75, 162, 0.3)",
+                borderRadius: "16px",
+                padding: "24px"
+              }}>
+                <h3 style={{
+                  fontSize: "18px",
+                  fontWeight: "700",
+                  color: "#764ba2",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}>
+                  <span>🤖</span> AI-Powered Recommendations
+                </h3>
+                <p style={{ marginBottom: "12px" }}>
+                  Our AI assistant analyzes the data and provides:
+                </p>
+                <ul style={{ paddingLeft: "20px", margin: 0 }}>
+                  <li style={{ marginBottom: "8px" }}>Personalized activity suggestions for travelers</li>
+                  <li style={{ marginBottom: "8px" }}>Gear and timing recommendations for field teams</li>
+                  <li>Safety considerations based on weather patterns</li>
+                </ul>
+              </div>
+            </div>
+
+            <div style={{
+              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+              paddingTop: "24px",
+              textAlign: "center"
+            }}>
+              <p style={{
+                color: "rgba(255, 255, 255, 0.6)",
+                fontSize: "14px",
+                marginBottom: "20px"
+              }}>
+                <strong>Powered by NASA POWER</strong> • Trusted climatology for realistic planning
+              </p>
+              <button
+                onClick={() => setShowIntroModal(false)}
+                style={{
+                  padding: "14px 32px",
+                  background: "linear-gradient(135deg, #667eea, #764ba2)",
+                  border: "none",
+                  borderRadius: "12px",
+                  color: "#fff",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
+                  transition: "all 0.3s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.6)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "0 4px 15px rgba(102, 126, 234, 0.4)";
+                }}
+              >
+                Get Started 🚀
+              </button>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes slideUp {
+              from {
+                opacity: 0;
+                transform: translateY(30px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          `}</style>
+        </div>
+      )}
+
+            {/* Help Modal - Guidelines */}
+            {showHelpModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(10px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            padding: "20px",
+            animation: "fadeIn 0.3s ease"
+          }}
+          onClick={() => setShowHelpModal(false)}
+        >
+          <HelpCarousel onClose={() => setShowHelpModal(false)} />
+        </div>
+      )}
     </div>
   );
 };
