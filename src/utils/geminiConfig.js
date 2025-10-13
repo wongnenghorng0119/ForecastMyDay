@@ -1,8 +1,12 @@
 // src/utils/geminiConfig.js
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 直接硬编码 API Key
-const API_KEY = "AIzaSyC6y0eYghOvG17XZKu94ppl5p4bAkJg0Bc";
+// 从环境变量读取 API Key
+const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+
+if (!API_KEY) {
+  throw new Error("REACT_APP_GEMINI_API_KEY is not defined in environment variables");
+}
 
 export const genAI = new GoogleGenerativeAI(API_KEY);
 
